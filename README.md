@@ -28,7 +28,7 @@ Whether you're preparing for your first job or switching careers, Rizzume gives 
 ## ✨ Features
 
 - 🤖 **AI-Powered Analysis** — Leverages a powerful AI service to deeply analyze resumes against job descriptions
-- 📄 **Resume Upload & Parsing** — Supports file uploads with middleware-based processing
+- 📄 **Resume Upload & Parsing** — Supports PDF resume uploads (maximum 5MB) with magic-byte validation and readable text extraction
 - 📊 **Interview Readiness Reports** — Generates structured, detailed reports stored persistently in MongoDB
 - 🔐 **Secure Authentication** — Full JWT-based auth flow with token blacklisting for safe logout
 - 🛡️ **Protected Routes** — Frontend route guards ensure only authenticated users access core features
@@ -149,13 +149,14 @@ cd Backend
 npm install
 ```
 
-Create a `.env` file in the `Backend/` directory:
+Create a `.env` file in the `Backend/` directory (or copy from `.env.example`):
 
 ```env
-PORT=5000
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_super_secret_key
-AI_API_KEY=your_ai_service_api_key
+PORT=3000
+MONGO_URI=mongodb://localhost:27017/rizzume_ai
+JWT_SECRET=your_jwt_secret_key_here
+GOOGLE_GENAI_API_KEY=your_google_genai_api_key_here
+NODE_ENV=development
 ```
 
 Start the backend server:
@@ -166,7 +167,7 @@ npm start
 npm run dev
 ```
 
-The backend will run at `http://localhost:5000`
+The backend will run at `http://localhost:3000`
 
 ---
 
@@ -177,10 +178,10 @@ cd ../Frontend
 npm install
 ```
 
-Create a `.env` file in the `Frontend/` directory:
+Create a `.env` file in the `Frontend/` directory (or copy from `.env.example`):
 
 ```env
-VITE_API_BASE_URL=http://localhost:5000
+VITE_API_BASE_URL=http://localhost:3000
 ```
 
 Start the development server:
@@ -193,6 +194,17 @@ The frontend will run at `http://localhost:5173`
 
 ---
 
+### 4. Running Automated Tests
+
+Run the backend automated test suite (uses isolated in-memory MongoDB):
+
+```bash
+cd Backend
+npm test
+```
+
+---
+
 ## 🔌 API Reference
 
 ### Authentication Endpoints
@@ -202,16 +214,18 @@ The frontend will run at `http://localhost:5173`
 | `POST` | `/api/auth/register` | Create a new user account | ❌ |
 | `POST` | `/api/auth/login` | Login and receive JWT token | ❌ |
 | `POST` | `/api/auth/logout` | Logout and blacklist token | ✅ |
+| `GET` | `/api/auth/get-me` | Get currently logged in user profile | ✅ |
 
 ### Interview Endpoints
 
 | Method | Endpoint | Description | Auth Required |
 |---|---|---|---|
-| `POST` | `/api/interview/analyze` | Upload resume + JD → AI report | ✅ |
-| `GET` | `/api/interview/reports` | Fetch all user reports | ✅ |
-| `GET` | `/api/interview/reports/:id` | Fetch a specific report | ✅ |
+| `POST` | `/api/interview/` | Upload resume PDF (max 5MB) / self-description + JD → AI report | ✅ |
+| `GET` | `/api/interview/` | Fetch all reports for authenticated user | ✅ |
+| `GET` | `/api/interview/report/:interviewId` | Fetch a specific report by ID (owner only) | ✅ |
+| `POST` | `/api/interview/resume/pdf/:interviewReportId` | Generate tailored resume PDF (owner only) | ✅ |
 
-> **Note:** All protected endpoints require a valid JWT token in the `Authorization: Bearer <token>` header.
+> **Note:** All protected endpoints accept authentication via HTTP-only cookie or `Authorization: Bearer <token>` header.
 
 ---
 
@@ -222,11 +236,11 @@ User Registers / Logs In
         ↓
 Backend validates credentials
         ↓
-JWT Token issued → stored in client
+JWT Token issued → set as HTTP-only cookie
         ↓
 Protected routes verified via auth.middleware.js
         ↓
-On logout → token added to blacklist.model.js
+On logout → token added to blacklist.model.js (24h TTL)
 ```
 
 ---
@@ -234,15 +248,15 @@ On logout → token added to blacklist.model.js
 ## 🧠 AI Analysis Flow
 
 ```
-User uploads Resume (PDF/DOCX) + Job Description
+User uploads Resume (PDF only, max 5MB) + Job Description
         ↓
-file.middleware.js processes the upload
+file.middleware.js validates MIME & size; controller checks %PDF magic bytes & readable text
         ↓
 interview.controller.js passes data to ai.service.js
         ↓
-AI Service analyzes: skills match, gaps, strengths
+AI Service analyzes: skills match, gaps, questions, prep plan
         ↓
-Structured report saved to interviewReport.model.js
+Structured report saved to interviewReport.model.js (associated with user)
         ↓
 Report returned to frontend for display
 ```

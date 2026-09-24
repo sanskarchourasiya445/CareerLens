@@ -21,9 +21,13 @@ backend/dist
 
 # local env files
 *.local
-backend/.env
-frontend/.env
-.env
+backend/.env*
+Backend/.env*
+frontend/.env*
+Frontend/.env*
+.env*
+*.env
+!*.env.example
 
 # uploads / generated files
 uploads

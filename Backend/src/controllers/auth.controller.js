@@ -8,13 +8,32 @@ const tokenBlacklistModel = require("../models/blacklist.model")
  * @description register a new user, expects username, email and password in the request body
  * @access Public
  */
-async function registerUserController(req, res) {
+async function registerUserController(req, res, next) {
     try {
-        const { username, email, password } = req.body;
+        let { username, email, password } = req.body;
 
         if (!username || !email || !password) {
             return res.status(400).json({
+                success: false,
                 message: "Please provide username, email and password"
+            });
+        }
+
+        username = String(username).trim();
+        email = String(email).trim().toLowerCase();
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                success: false,
+                message: "Please provide a valid email address"
+            });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: "Password must be at least 6 characters long"
             });
         }
 
@@ -25,12 +44,14 @@ async function registerUserController(req, res) {
         if (existingUser) {
             if (existingUser.username === username) {
                 return res.status(400).json({
+                    success: false,
                     message: "Username already taken"
                 });
             }
 
             if (existingUser.email === email) {
                 return res.status(400).json({
+                    success: false,
                     message: "Email already registered"
                 });
             }
@@ -52,11 +73,13 @@ async function registerUserController(req, res) {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: false, // true in production
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
             maxAge: 24 * 60 * 60 * 1000
         });
 
         return res.status(201).json({
+            success: true,
             message: "User registered successfully",
             user: {
                 id: user._id,
@@ -66,34 +89,33 @@ async function registerUserController(req, res) {
         });
 
     } catch (error) {
-        return res.status(500).json({
-            message: error.message
-        });
+        return next(error);
     }
 }
-
-
-
 
 /**
  * @name loginUserController
  * @description login a user, expects email and password in the request body
  * @access Public
  */
-async function loginUserController(req, res) {
+async function loginUserController(req, res, next) {
     try {
-        const { email, password } = req.body;
+        let { email, password } = req.body;
 
         if (!email || !password) {
             return res.status(400).json({
+                success: false,
                 message: "Please provide email and password"
             });
         }
+
+        email = String(email).trim().toLowerCase();
 
         const user = await userModel.findOne({ email });
 
         if (!user) {
             return res.status(400).json({
+                success: false,
                 message: "Invalid email or password"
             });
         }
@@ -102,6 +124,7 @@ async function loginUserController(req, res) {
 
         if (!isPasswordValid) {
             return res.status(400).json({
+                success: false,
                 message: "Invalid email or password"
             });
         }
@@ -114,11 +137,13 @@ async function loginUserController(req, res) {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: false, // true in production
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
             maxAge: 24 * 60 * 60 * 1000
         });
 
         return res.status(200).json({
+            success: true,
             message: "User logged in successfully",
             user: {
                 id: user._id,
@@ -128,66 +153,69 @@ async function loginUserController(req, res) {
         });
 
     } catch (error) {
-        return res.status(500).json({
-            message: error.message
-        });
+        return next(error);
     }
 }
 
 /**
  * @name logoutUserController
- * @description clear token from user cookie and add the token in blacklist
- * @access public
+ * @description clear token from user cookie and add the token to blacklist
+ * @access Private
  */
-async function logoutUserController(req, res) {
+async function logoutUserController(req, res, next) {
     try {
-        const token = req.cookies.token;
+        const token = req.token || (req.cookies ? req.cookies.token : null);
 
         if (token) {
-            await tokenBlacklistModel.create({ token });
+            await tokenBlacklistModel.findOneAndUpdate(
+                { token },
+                { token },
+                { upsert: true, returnDocument: 'after' }
+            );
         }
 
-        res.clearCookie("token");
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax"
+        });
 
         return res.status(200).json({
+            success: true,
             message: "User logged out successfully"
         });
 
     } catch (error) {
-        return res.status(500).json({
-            message: error.message
-        });
+        return next(error);
     }
 }
 
 /**
  * @name getMeController
  * @description get the current logged in user details.
- * @access private
+ * @access Private
  */
-async function getMeController(req, res) {
+async function getMeController(req, res, next) {
     try {
         const user = await userModel.findById(req.user.id).select("-password");
 
         if (!user) {
             return res.status(404).json({
+                success: false,
                 message: "User not found"
             });
         }
 
         return res.status(200).json({
+            success: true,
             message: "User details fetched successfully",
             user
         });
 
     } catch (error) {
-        return res.status(500).json({
-            message: error.message
-        });
+        return next(error);
     }
 }
-
-
 
 module.exports = {
     registerUserController,

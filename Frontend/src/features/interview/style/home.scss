@@ -237,6 +237,101 @@ $font-stack:     system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
         color: $text-muted;
         margin: 0;
     }
+
+    &--selected {
+        border-color: rgba(#3fb950, 0.4);
+        background-color: rgba(#3fb950, 0.04);
+
+        &:hover {
+            border-color: #3fb950;
+        }
+    }
+}
+
+.selected-file-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+
+    &__name {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #3fb950;
+        max-width: 280px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__size {
+        font-size: 0.75rem;
+        color: $text-muted;
+    }
+
+    &__remove {
+        background: none;
+        border: none;
+        color: #ff6b6b;
+        font-size: 0.75rem;
+        cursor: pointer;
+        text-decoration: underline;
+        padding: 0.2rem 0.4rem;
+        margin-top: 0.25rem;
+
+        &:hover {
+            color: lighten(#ff6b6b, 10%);
+        }
+    }
+}
+
+.home-error-banner {
+    width: 100%;
+    max-width: 900px;
+    background-color: rgba(255, 77, 77, 0.15);
+    border: 1px solid rgba(255, 77, 77, 0.35);
+    color: #ff8585;
+    padding: 0.85rem 1.25rem;
+    border-radius: 0.6rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.home-top-bar {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+
+    .user-greeting {
+        font-size: 0.85rem;
+        color: $text-muted;
+        strong {
+            color: $text-primary;
+        }
+    }
+
+    .logout-button {
+        background: transparent;
+        border: 1px solid $border-color;
+        color: $text-muted;
+        font-size: 0.8rem;
+        padding: 0.35rem 0.85rem;
+        border-radius: 0.4rem;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+            border-color: $accent;
+            color: $accent;
+        }
+    }
 }
 
 // ── OR Divider ────────────────────────────────────────────────────────────────

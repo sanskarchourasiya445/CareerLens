@@ -1,17 +1,102 @@
-import React, { useState, useEffect } from 'react'
-import '../style/interview.scss'
-import { useInterview } from '../hooks/useInterview.js'
-import { useNavigate, useParams, Link } from 'react-router'
+import React, { useState, useEffect } from 'react';
+import '../style/interview.scss';
+import { useInterview } from '../hooks/useInterview.js';
+import { useNavigate, useParams, Link } from 'react-router';
 
 const NAV_ITEMS = [
-    { id: 'technical', label: 'Technical Questions', icon: (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>) },
-    { id: 'behavioral', label: 'Behavioral Questions', icon: (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>) },
-    { id: 'roadmap', label: 'Road Map', icon: (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11" /></svg>) },
-]
+    {
+        id: 'evidence',
+        label: 'Evidence & Matches',
+        icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                <line x1="11" y1="8" x2="11" y2="14" />
+                <line x1="8" y1="11" x2="14" y2="11" />
+            </svg>
+        )
+    },
+    {
+        id: 'technical',
+        label: 'Technical Questions',
+        icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="16 18 22 12 16 6" />
+                <polyline points="8 6 2 12 8 18" />
+            </svg>
+        )
+    },
+    {
+        id: 'behavioral',
+        label: 'Behavioral Questions',
+        icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+        )
+    },
+    {
+        id: 'roadmap',
+        label: 'Preparation Roadmap',
+        icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="3 11 22 2 13 21 11 13 3 11" />
+            </svg>
+        )
+    },
+];
 
 // ── Sub-components ────────────────────────────────────────────────────────────
+
+const RequirementMatchCard = ({ item }) => {
+    const isMissing = item.status === 'missing';
+    const statusClass = `match-card--${item.status || 'missing'}`;
+    const statusBadgeClass = `match-card__status--${item.status || 'missing'}`;
+
+    return (
+        <div className={`match-card ${statusClass}`}>
+            <div className='match-card__header'>
+                <div>
+                    <h3 className='match-card__requirement'>{item.requirement}</h3>
+                    <div className='match-card__meta'>
+                        <span className='badge-tag'>{item.category?.replace(/_/g, ' ') || 'Requirement'}</span>
+                        <span className={`badge-tag ${item.importance === 'critical' ? 'badge-tag--critical' : ''}`}>
+                            {item.importance} importance
+                        </span>
+                        {item.isGrounded === false && !isMissing && (
+                            <span className='badge-tag' style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                                Unverified Citation
+                            </span>
+                        )}
+                    </div>
+                </div>
+                <span className={`match-card__status ${statusBadgeClass}`}>
+                    {item.status}
+                </span>
+            </div>
+
+            {/* Evidence Citation */}
+            <div className={`evidence-box ${isMissing ? 'evidence-box--missing' : 'evidence-box--found'}`}>
+                <span className='evidence-box__label'>
+                    {isMissing ? 'Evidence Gap:' : 'Resume Evidence Citation:'}
+                </span>
+                {isMissing ? (
+                    <p>{item.evidence || "No supporting evidence found in resume."}</p>
+                ) : (
+                    <blockquote>&ldquo;{item.evidence}&rdquo;</blockquote>
+                )}
+            </div>
+
+            {/* AI Explanation */}
+            {item.explanation && (
+                <p className='match-explanation'>{item.explanation}</p>
+            )}
+        </div>
+    );
+};
+
 const QuestionCard = ({ item, index }) => {
-    const [ open, setOpen ] = useState(false)
+    const [open, setOpen] = useState(false);
     return (
         <div className='q-card'>
             <div className='q-card__header' onClick={() => setOpen(o => !o)}>
@@ -34,8 +119,8 @@ const QuestionCard = ({ item, index }) => {
                 </div>
             )}
         </div>
-    )
-}
+    );
+};
 
 const RoadMapDay = ({ day }) => (
     <div className='roadmap-day'>
@@ -52,37 +137,37 @@ const RoadMapDay = ({ day }) => (
             ))}
         </ul>
     </div>
-)
+);
 
 // ── Main Component ────────────────────────────────────────────────────────────
 const Interview = () => {
-    const [ activeNav, setActiveNav ] = useState('technical')
-    const [ downloading, setDownloading ] = useState(false)
-    const { report, getReportById, loading, error, getResumePdf } = useInterview()
-    const { interviewId } = useParams()
-    const navigate = useNavigate()
+    const [activeNav, setActiveNav] = useState('evidence');
+    const [filterStatus, setFilterStatus] = useState('all'); // "all" | "matched" | "partial" | "missing"
+    const [downloading, setDownloading] = useState(false);
+    const { report, getReportById, loading, error, getResumePdf } = useInterview();
+    const { interviewId } = useParams();
 
     useEffect(() => {
         if (interviewId) {
-            getReportById(interviewId)
+            getReportById(interviewId);
         }
-    }, [ interviewId ])
+    }, [interviewId]);
 
     const handleDownload = async () => {
-        setDownloading(true)
+        setDownloading(true);
         try {
-            await getResumePdf(interviewId)
+            await getResumePdf(interviewId);
         } finally {
-            setDownloading(false)
+            setDownloading(false);
         }
-    }
+    };
 
     if (loading) {
         return (
             <main className='loading-screen'>
-                <h1>Loading your interview plan...</h1>
+                <h1>Loading your career intelligence analysis...</h1>
             </main>
-        )
+        );
     }
 
     if (error || !report) {
@@ -90,26 +175,41 @@ const Interview = () => {
             <main className='loading-screen'>
                 <h1>{error || "Report not found."}</h1>
                 <p style={{ marginTop: '1rem' }}>
-                    <Link to='/' style={{ color: '#ff2d78' }}>&larr; Return to Home</Link>
+                    <Link to='/' style={{ color: '#ff2d78' }}>&larr; Return to Dashboard</Link>
                 </p>
             </main>
-        )
+        );
     }
 
-    const matchScore = typeof report.matchScore === 'number' ? report.matchScore : 0
+    const matchScore = typeof report.matchScore === 'number'
+        ? report.matchScore
+        : typeof report.deterministicScore === 'number'
+            ? report.deterministicScore
+            : 0;
+
     const scoreColor =
         matchScore >= 80 ? 'score--high' :
-            matchScore >= 60 ? 'score--mid' : 'score--low'
+            matchScore >= 60 ? 'score--mid' : 'score--low';
 
     const scoreDescription =
-        matchScore >= 80 ? 'Strong match for this role' :
-            matchScore >= 60 ? 'Moderate match for this role' :
-                'Skill gaps identified for this role'
+        matchScore >= 80 ? 'Strong qualification match' :
+            matchScore >= 60 ? 'Moderate match with addressable gaps' :
+                'Critical skill gaps identified';
 
-    const technicalQuestions = report.technicalQuestions || []
-    const behavioralQuestions = report.behavioralQuestions || []
-    const skillGaps = report.skillGaps || []
-    const preparationPlan = report.preparationPlan || []
+    const requirementMatches = report.requirementMatches || [];
+    const filteredMatches = requirementMatches.filter(item => {
+        if (filterStatus === 'all') return true;
+        return item.status === filterStatus;
+    });
+
+    const matchedCount = requirementMatches.filter(m => m.status === 'matched').length;
+    const partialCount = requirementMatches.filter(m => m.status === 'partial').length;
+    const missingCount = requirementMatches.filter(m => m.status === 'missing').length;
+
+    const technicalQuestions = report.technicalQuestions || [];
+    const behavioralQuestions = report.behavioralQuestions || [];
+    const skillGaps = report.skillGaps || [];
+    const preparationPlan = report.preparationPlan || [];
 
     return (
         <div className='interview-page'>
@@ -123,7 +223,7 @@ const Interview = () => {
                                 &larr; Back to Dashboard
                             </Link>
                         </div>
-                        <p className='interview-nav__label'>Sections</p>
+                        <p className='interview-nav__label'>Analysis Sections</p>
                         {NAV_ITEMS.map(item => (
                             <button
                                 key={item.id}
@@ -148,6 +248,57 @@ const Interview = () => {
 
                 {/* ── Center Content ── */}
                 <main className='interview-content'>
+
+                    {/* Section 1: Evidence & Requirement Matching (Primary) */}
+                    {activeNav === 'evidence' && (
+                        <section>
+                            <div className='content-header'>
+                                <h2>Evidence &amp; Requirement Matches</h2>
+                                <span className='content-header__count'>
+                                    {matchedCount} Matched &bull; {partialCount} Partial &bull; {missingCount} Missing
+                                </span>
+                            </div>
+
+                            {/* Filter Pills */}
+                            <div className='filter-pills'>
+                                <button
+                                    onClick={() => setFilterStatus('all')}
+                                    className={`filter-pill ${filterStatus === 'all' ? 'filter-pill--active' : ''}`}>
+                                    All ({requirementMatches.length})
+                                </button>
+                                <button
+                                    onClick={() => setFilterStatus('matched')}
+                                    className={`filter-pill ${filterStatus === 'matched' ? 'filter-pill--active' : ''}`}>
+                                    Matched ({matchedCount})
+                                </button>
+                                <button
+                                    onClick={() => setFilterStatus('partial')}
+                                    className={`filter-pill ${filterStatus === 'partial' ? 'filter-pill--active' : ''}`}>
+                                    Partial ({partialCount})
+                                </button>
+                                <button
+                                    onClick={() => setFilterStatus('missing')}
+                                    className={`filter-pill ${filterStatus === 'missing' ? 'filter-pill--active' : ''}`}>
+                                    Missing ({missingCount})
+                                </button>
+                            </div>
+
+                            {/* Match List */}
+                            <div className='match-list'>
+                                {filteredMatches.length > 0 ? (
+                                    filteredMatches.map((item, index) => (
+                                        <RequirementMatchCard key={index} item={item} />
+                                    ))
+                                ) : (
+                                    <p style={{ color: '#7d8590', fontStyle: 'italic', padding: '1rem 0' }}>
+                                        No requirements in this category.
+                                    </p>
+                                )}
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Section 2: Technical Questions */}
                     {activeNav === 'technical' && (
                         <section>
                             <div className='content-header'>
@@ -162,6 +313,7 @@ const Interview = () => {
                         </section>
                     )}
 
+                    {/* Section 3: Behavioral Questions */}
                     {activeNav === 'behavioral' && (
                         <section>
                             <div className='content-header'>
@@ -176,10 +328,11 @@ const Interview = () => {
                         </section>
                     )}
 
+                    {/* Section 4: Preparation Roadmap */}
                     {activeNav === 'roadmap' && (
                         <section>
                             <div className='content-header'>
-                                <h2>Preparation Road Map</h2>
+                                <h2>Preparation Roadmap</h2>
                                 <span className='content-header__count'>{preparationPlan.length}-day plan</span>
                             </div>
                             <div className='roadmap-list'>
@@ -194,11 +347,11 @@ const Interview = () => {
                 <div className='interview-divider' />
 
                 {/* ── Right Sidebar ── */}
-                <aside className='interview-sidebar'>
+                <aside className='interview-sidebar' style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
-                    {/* Match Score */}
+                    {/* Deterministic Match Score */}
                     <div className='match-score'>
-                        <p className='match-score__label'>Match Score</p>
+                        <p className='match-score__label'>Deterministic Match Score</p>
                         <div className={`match-score__ring ${scoreColor}`}>
                             <span className='match-score__value'>{matchScore}</span>
                             <span className='match-score__pct'>%</span>
@@ -206,11 +359,44 @@ const Interview = () => {
                         <p className='match-score__sub'>{scoreDescription}</p>
                     </div>
 
+                    {/* Score Breakdown */}
+                    {report.scoreBreakdown && (
+                        <div className='score-breakdown-card'>
+                            <div className='score-breakdown-card__row'>
+                                <span>Core Matched:</span>
+                                <strong>{matchedCount} of {requirementMatches.length}</strong>
+                            </div>
+                            <div className='score-breakdown-card__row'>
+                                <span>Earned Weight:</span>
+                                <strong>{report.scoreBreakdown.totalEarnedWeight || Math.round((matchScore/100)*40)} pts</strong>
+                            </div>
+                            {report.scoreBreakdown.criticalPenaltyApplied > 0 && (
+                                <div className='score-breakdown-card__row' style={{ color: '#ff8585' }}>
+                                    <span>Critical Gap Penalty:</span>
+                                    <strong>-{report.scoreBreakdown.criticalPenaltyApplied} pts</strong>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Deterministic Product Heuristic Disclaimer */}
+                    <p style={{ fontSize: '0.72rem', color: '#7d8590', lineHeight: 1.4, textAlign: 'center', margin: '0 0.5rem' }}>
+                        * Fit score is a deterministic product heuristic based on requirement weights and penalties, not a scientific measurement of hiring probability.
+                    </p>
+
+                    {/* AI Score Explanation */}
+                    {report.scoreExplanation && (
+                        <div className='score-explanation-box'>
+                            <h4 className='score-explanation-box__title'>Analysis Rationale</h4>
+                            <p>{report.scoreExplanation}</p>
+                        </div>
+                    )}
+
                     <div className='sidebar-divider' />
 
                     {/* Skill Gaps */}
                     <div className='skill-gaps'>
-                        <p className='skill-gaps__label'>Skill Gaps</p>
+                        <p className='skill-gaps__label'>Prioritized Skill Gaps</p>
                         <div className='skill-gaps__list'>
                             {skillGaps.map((gap, i) => (
                                 <span key={i} className={`skill-tag skill-tag--${gap.severity || 'medium'}`}>
@@ -223,7 +409,7 @@ const Interview = () => {
                 </aside>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default Interview
+export default Interview;

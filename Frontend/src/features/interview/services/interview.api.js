@@ -7,18 +7,114 @@ const api = axios.create({
     withCredentials: true,
 });
 
-/**
- * @description Service to generate interview report based on user self description, resume and job description.
- */
-export const generateInterviewReport = async ({ jobDescription, selfDescription, resumeFile }) => {
+// ─────────────────────────────────────────────────────────────────────────────
+// Resumes API
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const getResumeVersions = async () => {
+    try {
+        const response = await api.get("/api/resumes");
+        return response.data;
+    } catch (err) {
+        const message = err.response?.data?.message || err.message || "Failed to load resume versions.";
+        throw new Error(message);
+    }
+};
+
+export const uploadResumeVersion = async ({ file, title }) => {
     try {
         const formData = new FormData();
-        formData.append("jobDescription", jobDescription);
-        if (selfDescription) {
-            formData.append("selfDescription", selfDescription);
+        formData.append("resume", file);
+        if (title) {
+            formData.append("title", title);
         }
-        if (resumeFile) {
-            formData.append("resume", resumeFile);
+
+        const response = await api.post("/api/resumes", formData, {
+            headers: { "Content-Type": "multipart/form-data" }
+        });
+        return response.data;
+    } catch (err) {
+        const message = err.response?.data?.message || err.message || "Failed to upload resume.";
+        throw new Error(message);
+    }
+};
+
+export const deleteResumeVersion = async (id) => {
+    try {
+        const response = await api.delete(`/api/resumes/${id}`);
+        return response.data;
+    } catch (err) {
+        const message = err.response?.data?.message || err.message || "Failed to delete resume.";
+        throw new Error(message);
+    }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Jobs API
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const getJobs = async () => {
+    try {
+        const response = await api.get("/api/jobs");
+        return response.data;
+    } catch (err) {
+        const message = err.response?.data?.message || err.message || "Failed to load target jobs.";
+        throw new Error(message);
+    }
+};
+
+export const createJob = async ({ rawDescription, title, company }) => {
+    try {
+        const response = await api.post("/api/jobs", {
+            rawDescription,
+            title,
+            company
+        });
+        return response.data;
+    } catch (err) {
+        const message = err.response?.data?.message || err.message || "Failed to extract job requirements.";
+        throw new Error(message);
+    }
+};
+
+export const deleteJob = async (id) => {
+    try {
+        const response = await api.delete(`/api/jobs/${id}`);
+        return response.data;
+    } catch (err) {
+        const message = err.response?.data?.message || err.message || "Failed to delete target job.";
+        throw new Error(message);
+    }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Interview / Analysis API
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * @description Generate career intelligence analysis report.
+ * Supports both reusable ({ resumeVersionId, jobId }) and one-shot (formData) modes.
+ */
+export const generateInterviewReport = async (payload) => {
+    try {
+        // Reusable Flow
+        if (payload.resumeVersionId && payload.jobId) {
+            const response = await api.post("/api/interview/", {
+                resumeVersionId: payload.resumeVersionId,
+                jobId: payload.jobId,
+                selfDescription: payload.selfDescription || ""
+            });
+            return response.data;
+        }
+
+        // One-Shot Flow
+        const formData = new FormData();
+        formData.append("jobDescription", payload.jobDescription);
+        if (payload.selfDescription) {
+            formData.append("selfDescription", payload.selfDescription);
+        }
+        if (payload.resumeFile) {
+            formData.append("resume", payload.resumeFile);
         }
 
         const response = await api.post("/api/interview/", formData, {
@@ -29,14 +125,11 @@ export const generateInterviewReport = async ({ jobDescription, selfDescription,
 
         return response.data;
     } catch (err) {
-        const message = err.response?.data?.message || err.message || "Failed to generate interview strategy.";
+        const message = err.response?.data?.message || err.message || "Failed to generate career intelligence report.";
         throw new Error(message);
     }
 };
 
-/**
- * @description Service to get interview report by interviewId.
- */
 export const getInterviewReportById = async (interviewId) => {
     try {
         const response = await api.get(`/api/interview/report/${interviewId}`);
@@ -47,9 +140,6 @@ export const getInterviewReportById = async (interviewId) => {
     }
 };
 
-/**
- * @description Service to get all interview reports of logged in user.
- */
 export const getAllInterviewReports = async () => {
     try {
         const response = await api.get("/api/interview/");
@@ -60,9 +150,6 @@ export const getAllInterviewReports = async () => {
     }
 };
 
-/**
- * @description Service to generate resume pdf based on user self description, resume content and job description.
- */
 export const generateResumePdf = async ({ interviewReportId }) => {
     try {
         const response = await api.post(`/api/interview/resume/pdf/${interviewReportId}`, null, {
@@ -71,7 +158,6 @@ export const generateResumePdf = async ({ interviewReportId }) => {
 
         return response.data;
     } catch (err) {
-        // If response is a blob containing error JSON, parse it
         if (err.response && err.response.data instanceof Blob) {
             try {
                 const text = await err.response.data.text();

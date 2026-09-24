@@ -19,22 +19,20 @@
 
 ## 📌 Overview
 
-**Rizzume** is a full-stack MERN application that harnesses the power of AI to help job seekers stand out. Upload your resume, provide a job description, and let Rizzume generate a comprehensive interview readiness report — highlighting skill gaps, strengths, and personalized recommendations.
-
-Whether you're preparing for your first job or switching careers, Rizzume gives you the edge you need.
+**Rizzume** is an **evidence-based AI career intelligence platform** that systematically compares a resume against a specific target job description. Unlike generic LLM-based feedback tools, Rizzume grounds every match in verifiable citations extracted directly from the candidate's resume, computes a **100% deterministic fit score** using weighted algorithms, and offers structured, repeatable evaluation across multiple resume versions and job targets.
 
 ---
 
 ## ✨ Features
 
-- 🤖 **AI-Powered Analysis** — Leverages a powerful AI service to deeply analyze resumes against job descriptions
-- 📄 **Resume Upload & Parsing** — Supports PDF resume uploads (maximum 5MB) with magic-byte validation and readable text extraction
-- 📊 **Interview Readiness Reports** — Generates structured, detailed reports stored persistently in MongoDB
-- 🔐 **Secure Authentication** — Full JWT-based auth flow with token blacklisting for safe logout
-- 🛡️ **Protected Routes** — Frontend route guards ensure only authenticated users access core features
-- 🌐 **RESTful API** — Clean, well-structured Express backend with modular routing
-- ⚡ **Lightning-Fast Frontend** — Built with React + Vite for blazing-fast HMR and builds
-- 🎨 **SCSS Styling** — Custom, maintainable styles using SCSS with component-level scoping
+- 🎯 **Evidence-Grounded Matching** — Extracts granular job requirements (technical, experience, domain, soft skills) and categorizes resume alignment into `matched`, `partial`, or `missing` with verbatim quote citations.
+- 🧮 **Deterministic Scoring Engine** — Zero LLM hallucinated scores. Match scores (0–100) are computed mathematically via backend importance weighting and critical missing skill penalties.
+- 📁 **Reusable Resumes & Target Jobs** — First-class entities for resumes and job descriptions allowing users to evaluate multiple resume variations against saved job postings without repeated uploads.
+- 📄 **Hardened PDF Parsing** — Strict 5MB limit, magic-byte (`%PDF-`) validation, and 50 readable character thresholds preventing corrupted or image-only submissions.
+- 🛡️ **Prompt Injection Defenses** — Hardened boundary delimiters (`<SYSTEM_INSTRUCTIONS>`, `<UNTRUSTED_RESUME>`, etc.) and strict runtime Zod schema parsing.
+- 📊 **Interactive Evidence UI** — Filter requirements by match status, inspect verbatim evidence quotes, review missing requirement warnings, and visualize score breakdowns.
+- 🔐 **Robust Authentication** — JWT-based auth with HTTP-only cookies, token blacklisting on logout, and strict IDOR route guards.
+- ⚡ **Full-Stack Performance** — Fast Vite + React 18 frontend and scalable Express + MongoDB backend with automated rollback on generation failure.
 
 ---
 
@@ -71,31 +69,42 @@ Rizzume-AiReportAndResumeGenerator/
 │   ├── index.js                      # Server entry point
 │   ├── package.json
 │   │
-│   └── src/
-│       ├── app.js                    # Express app configuration
-│       │
-│       ├── config/
-│       │   └── database.js           # MongoDB connection setup
-│       │
-│       ├── controllers/
-│       │   ├── auth.controller.js    # Register, login, logout logic
-│       │   └── interview.controller.js # Report generation & retrieval
-│       │
-│       ├── middlewares/
-│       │   ├── auth.middleware.js    # JWT verification middleware
-│       │   └── file.middleware.js    # Multer file upload handling
-│       │
-│       ├── models/
-│       │   ├── user.model.js         # User schema
-│       │   ├── interviewReport.model.js # AI-generated report schema
-│       │   └── blacklist.model.js    # Invalidated JWT tokens
-│       │
-│       ├── routes/
-│       │   ├── auth.routes.js        # /api/auth/* endpoints
-│       │   └── interview.routes.js   # /api/interview/* endpoints
-│       │
-│       └── services/
-│           └── ai.service.js         # Core AI analysis logic
+│   ├── src/
+│   │   ├── app.js                    # Express app configuration
+│   │   │
+│   │   ├── config/
+│   │   │   └── database.js           # MongoDB connection setup
+│   │   │
+│   │   ├── controllers/
+│   │   │   ├── auth.controller.js    # Register, login, logout logic
+│   │   │   ├── resume.controller.js  # Reusable resume uploads & management
+│   │   │   ├── job.controller.js     # Target job descriptions & AI parsing
+│   │   │   └── interview.controller.js # Evidence-grounded analysis & reports
+│   │   │
+│   │   ├── middlewares/
+│   │   │   ├── auth.middleware.js    # JWT verification & blacklist middleware
+│   │   │   ├── file.middleware.js    # Multer file upload handling (5MB PDF limit)
+│   │   │   └── error.middleware.js   # Centralized error handler
+│   │   │
+│   │   ├── models/
+│   │   │   ├── user.model.js         # User schema
+│   │   │   ├── resumeVersion.model.js# Reusable resume entity (extracted text & meta)
+│   │   │   ├── job.model.js          # Reusable job entity (structured requirements)
+│   │   │   ├── interviewReport.model.js # Evidence-based report & deterministic scores
+│   │   │   └── blacklist.model.js    # Invalidated JWT tokens
+│   │   │
+│   │   ├── routes/
+│   │   │   ├── auth.routes.js        # /api/auth/* endpoints
+│   │   │   ├── resume.routes.js      # /api/resumes/* endpoints
+│   │   │   ├── job.routes.js         # /api/jobs/* endpoints
+│   │   │   └── interview.routes.js   # /api/interview/* endpoints
+│   │   │
+│   │   └── services/
+│   │       ├── ai.service.js         # Structured requirement extraction & evidence pipeline (Zod-validated)
+│   │       ├── scoring.service.js    # Pure deterministic scoring engine
+│   │       └── pdf.service.js        # Hardened Puppeteer PDF generation
+│   │
+│   └── tests/                        # Automated Jest/Supertest suite (39 tests)
 │
 └── Frontend/
     ├── index.html
@@ -114,11 +123,11 @@ Rizzume-AiReportAndResumeGenerator/
             │   ├── components/Protected.jsx  # Route guard
             │   └── services/auth.api.js      # Auth API calls
             │
-            └── interview/            # Interview feature
-                ├── interview.context.jsx     # Interview state provider
+            └── interview/            # Evidence-based interview feature
+                ├── interview.context.jsx     # Interview, Resume & Job state provider
                 ├── hooks/useInterview.js     # Interview hook
-                ├── pages/            # Home & Interview pages
-                └── services/interview.api.js # Interview API calls
+                ├── pages/            # Home (Dual-mode selectors) & Interview (Evidence UI)
+                └── services/interview.api.js # API calls for reports, resumes & jobs
 ```
 
 ---
@@ -216,49 +225,83 @@ npm test
 | `POST` | `/api/auth/logout` | Logout and blacklist token | ✅ |
 | `GET` | `/api/auth/get-me` | Get currently logged in user profile | ✅ |
 
-### Interview Endpoints
+### Resume Version Endpoints
 
 | Method | Endpoint | Description | Auth Required |
 |---|---|---|---|
-| `POST` | `/api/interview/` | Upload resume PDF (max 5MB) / self-description + JD → AI report | ✅ |
-| `GET` | `/api/interview/` | Fetch all reports for authenticated user | ✅ |
-| `GET` | `/api/interview/report/:interviewId` | Fetch a specific report by ID (owner only) | ✅ |
+| `POST` | `/api/resumes` | Upload & parse reusable resume PDF (max 5MB, ≥50 chars) | ✅ |
+| `GET` | `/api/resumes` | List all resume versions for authenticated user | ✅ |
+| `GET` | `/api/resumes/:id` | Fetch specific resume version details & text | ✅ |
+| `DELETE` | `/api/resumes/:id` | Delete a resume version (owner only) | ✅ |
+
+### Target Job Endpoints
+
+| Method | Endpoint | Description | Auth Required |
+|---|---|---|---|
+| `POST` | `/api/jobs` | Submit job posting; AI extracts structured requirements | ✅ |
+| `GET` | `/api/jobs` | List all saved job postings for authenticated user | ✅ |
+| `GET` | `/api/jobs/:id` | Fetch specific job and structured requirements | ✅ |
+| `DELETE` | `/api/jobs/:id` | Delete a saved job posting (owner only) | ✅ |
+
+### Evaluation & Report Endpoints
+
+| Method | Endpoint | Description | Auth Required |
+|---|---|---|---|
+| `POST` | `/api/interview/` | Generate evaluation report (reusable IDs or one-shot upload) | ✅ |
+| `GET` | `/api/interview/` | Fetch all evaluation reports for authenticated user | ✅ |
+| `GET` | `/api/interview/report/:interviewId` | Fetch report details with matches & populated entities | ✅ |
 | `POST` | `/api/interview/resume/pdf/:interviewReportId` | Generate tailored resume PDF (owner only) | ✅ |
 
 > **Note:** All protected endpoints accept authentication via HTTP-only cookie or `Authorization: Bearer <token>` header.
 
 ---
 
-## 🔒 Authentication Flow
+## 🧮 Deterministic Scoring Engine
 
-```
-User Registers / Logs In
-        ↓
-Backend validates credentials
-        ↓
-JWT Token issued → set as HTTP-only cookie
-        ↓
-Protected routes verified via auth.middleware.js
-        ↓
-On logout → token added to blacklist.model.js (24h TTL)
-```
+Unlike standard generative AI wrappers where the LLM invents an arbitrary score, **Rizzume's backend owns the scoring computation completely**:
+
+1. **Requirement Weighting**:
+   - `critical`: multiplier `4.0`
+   - `high`: multiplier `3.0`
+   - `medium`: multiplier `2.0`
+   - `low`: multiplier `1.0`
+
+2. **Status Multipliers**:
+   - `matched`: `1.0`
+   - `partial`: `0.5`
+   - `missing`: `0.0`
+
+3. **Critical Skill Penalty**:
+   - For every missing critical requirement, a penalty deduction of **10 points** is subtracted from the weighted score.
+   - If **all** critical requirements are missing, the final score is strictly capped at **40/100**.
+
+4. **Zero-Hallucination Evidence Grounding**:
+   - For every `matched` or `partial` requirement, the AI pipeline must quote verbatim text from the candidate's resume (`verbatimQuote`).
+   - If no supporting quote exists in the resume, the status must strictly be `missing` or `partial` with null/empty quote.
+   - Prompts enforce boundary isolation tags (`<SYSTEM_INSTRUCTIONS>`, `<UNTRUSTED_JOB_DESCRIPTION>`, `<UNTRUSTED_RESUME>`) and outputs are strictly validated via Zod schemas.
 
 ---
 
-## 🧠 AI Analysis Flow
+## 🧠 AI Analysis Pipeline
 
 ```
-User uploads Resume (PDF only, max 5MB) + Job Description
-        ↓
-file.middleware.js validates MIME & size; controller checks %PDF magic bytes & readable text
-        ↓
-interview.controller.js passes data to ai.service.js
-        ↓
-AI Service analyzes: skills match, gaps, questions, prep plan
-        ↓
-Structured report saved to interviewReport.model.js (associated with user)
-        ↓
-Report returned to frontend for display
+[Target Job Description] ─────────► AI Requirement Extraction (Zod Validated)
+                                                │
+                                                ▼ Structured Requirements List
+[Resume PDF / Upload] ────────────► Evidence Analysis Pipeline
+                                    - Verbatim citation matching
+                                    - Matched / Partial / Missing status
+                                    - Prompt injection boundary isolation
+                                                │
+                                                ▼ Structured Evidence Matches
+                              Backend Deterministic Scoring Engine
+                              - Weighted importance calculation
+                              - Critical missing deductions & caps
+                                                │
+                                                ▼
+                                    Persisted Evaluation Report
+                                    - Deterministic Score & Breakdown
+                                    - Reusable Resume & Job Links
 ```
 
 ---

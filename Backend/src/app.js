@@ -28,10 +28,14 @@ app.use(cors({
 /* require all the routes here */
 const authRouter = require("./routes/auth.routes")
 const interviewRouter = require("./routes/interview.routes")
+const resumeRouter = require("./routes/resume.routes")
+const jobRouter = require("./routes/job.routes")
 
 /* using all the routes here */
 app.use("/api/auth", authRouter)
 app.use("/api/interview", interviewRouter)
+app.use("/api/resumes", resumeRouter)
+app.use("/api/jobs", jobRouter)
 
 /* 404 and global error handlers */
 app.use(notFoundHandler)

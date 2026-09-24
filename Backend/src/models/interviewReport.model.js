@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-
 const technicalQuestionSchema = new mongoose.Schema({
     question: {
         type: String,
@@ -16,7 +15,7 @@ const technicalQuestionSchema = new mongoose.Schema({
     }
 }, {
     _id: false
-})
+});
 
 const behavioralQuestionSchema = new mongoose.Schema({
     question: {
@@ -33,7 +32,7 @@ const behavioralQuestionSchema = new mongoose.Schema({
     }
 }, {
     _id: false
-})
+});
 
 const skillGapSchema = new mongoose.Schema({
     skill: {
@@ -47,7 +46,7 @@ const skillGapSchema = new mongoose.Schema({
     }
 }, {
     _id: false
-})
+});
 
 const preparationPlanSchema = new mongoose.Schema({
     day: {
@@ -62,42 +61,104 @@ const preparationPlanSchema = new mongoose.Schema({
         type: String,
         required: [ true, "Task is required" ]
     } ]
-})
+}, {
+    _id: false
+});
+
+const requirementMatchSchema = new mongoose.Schema({
+    requirement: {
+        type: String,
+        required: [ true, "Requirement text is required" ]
+    },
+    category: {
+        type: String,
+        enum: [ "required_skill", "preferred_skill", "technology", "experience", "education", "domain" ],
+        default: "required_skill"
+    },
+    importance: {
+        type: String,
+        enum: [ "critical", "high", "medium", "low" ],
+        default: "high"
+    },
+    status: {
+        type: String,
+        enum: [ "matched", "partial", "missing" ],
+        required: [ true, "Match status is required" ]
+    },
+    evidence: {
+        type: String,
+        required: [ true, "Evidence or absence reason is required" ]
+    },
+    explanation: {
+        type: String,
+        required: [ true, "Explanation is required" ]
+    },
+    isGrounded: {
+        type: Boolean,
+        default: true
+    }
+}, {
+    _id: false
+});
 
 const interviewReportSchema = new mongoose.Schema({
-    jobDescription: {
-        type: String,
-        required: [ true, "Job description is required" ]
-    },
-    resume: {
-        type: String,
-    },
-    selfDescription: {
-        type: String,
-    },
-    matchScore: {
-        type: Number,
-        min: 0,
-        max: 100,
-    },
-    technicalQuestions: [ technicalQuestionSchema ],
-    behavioralQuestions: [ behavioralQuestionSchema ],
-    skillGaps: [ skillGapSchema ],
-    preparationPlan: [ preparationPlanSchema ],
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "users",
+        required: [ true, "User reference is required" ],
+        index: true
+    },
+    resumeVersion: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ResumeVersion",
+        index: true
+    },
+    job: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Job",
         index: true
     },
     title: {
         type: String,
         required: [ true, "Job title is required" ]
-    }
+    },
+    jobDescription: {
+        type: String,
+        required: [ true, "Job description is required" ]
+    },
+    resume: {
+        type: String
+    },
+    selfDescription: {
+        type: String
+    },
+    // Deterministic score computed exclusively by the backend scoring service
+    deterministicScore: {
+        type: Number,
+        min: 0,
+        max: 100
+    },
+    // Backwards-compatible alias for deterministicScore
+    matchScore: {
+        type: Number,
+        min: 0,
+        max: 100
+    },
+    scoreBreakdown: {
+        type: mongoose.Schema.Types.Mixed
+    },
+    scoreExplanation: {
+        type: String
+    },
+    requirementMatches: [ requirementMatchSchema ],
+    technicalQuestions: [ technicalQuestionSchema ],
+    behavioralQuestions: [ behavioralQuestionSchema ],
+    skillGaps: [ skillGapSchema ],
+    preparationPlan: [ preparationPlanSchema ]
 }, {
     timestamps: true
-})
-
+});
 
 const interviewReportModel = mongoose.model("InterviewReport", interviewReportSchema);
 
-module.exports = interviewReportModel;  
+module.exports = interviewReportModel;

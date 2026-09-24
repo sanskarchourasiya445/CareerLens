@@ -477,3 +477,216 @@ $severity-low: #3fb950;
         border-color: rgba($severity-low, 0.25);
     }
 }
+
+// ── Evidence & Requirement Matching UI ──────────────────────────────────────
+.filter-pills {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.filter-pill {
+    padding: 0.35rem 0.8rem;
+    border-radius: 2rem;
+    font-size: 0.775rem;
+    font-weight: 500;
+    background: #1c2230;
+    border: 1px solid $border-color;
+    color: $text-muted;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover {
+        background: #252e42;
+        color: $text-primary;
+    }
+
+    &--active {
+        background: rgba($accent, 0.15);
+        border-color: $accent;
+        color: $accent;
+    }
+}
+
+.match-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.match-card {
+    background-color: $bg-panel;
+    border: 1px solid $border-color;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    transition: border-color 0.2s ease;
+
+    &--matched {
+        border-left: 4px solid $severity-low;
+    }
+
+    &--partial {
+        border-left: 4px solid $severity-medium;
+    }
+
+    &--missing {
+        border-left: 4px solid $severity-high;
+    }
+
+    &__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    &__requirement {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: $text-primary;
+        margin: 0;
+        line-height: 1.4;
+    }
+
+    &__meta {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        margin-top: 0.3rem;
+    }
+
+    &__status {
+        padding: 0.25rem 0.6rem;
+        border-radius: 0.35rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        flex-shrink: 0;
+
+        &--matched {
+            background-color: rgba($severity-low, 0.15);
+            color: $severity-low;
+            border: 1px solid rgba($severity-low, 0.3);
+        }
+
+        &--partial {
+            background-color: rgba($severity-medium, 0.15);
+            color: $severity-medium;
+            border: 1px solid rgba($severity-medium, 0.3);
+        }
+
+        &--missing {
+            background-color: rgba($severity-high, 0.15);
+            color: $severity-high;
+            border: 1px solid rgba($severity-high, 0.3);
+        }
+    }
+}
+
+.badge-tag {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 0.3rem;
+    background: #161b22;
+    border: 1px solid $border-color;
+    color: $text-muted;
+    text-transform: capitalize;
+
+    &--critical {
+        color: #ff8585;
+        border-color: rgba(#ff4d4d, 0.4);
+    }
+}
+
+.evidence-box {
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+
+    &__label {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.35rem;
+        color: $text-muted;
+    }
+
+    &--found {
+        background-color: rgba(56, 139, 253, 0.08);
+        border: 1px dashed rgba(56, 139, 253, 0.35);
+
+        blockquote {
+            margin: 0;
+            color: #b1d0fc;
+            font-style: italic;
+            line-height: 1.5;
+        }
+    }
+
+    &--missing {
+        background-color: rgba($severity-high, 0.06);
+        border: 1px dashed rgba($severity-high, 0.3);
+
+        p {
+            margin: 0;
+            color: #ff9999;
+            font-size: 0.8rem;
+        }
+    }
+}
+
+.match-explanation {
+    margin: 0;
+    font-size: 0.825rem;
+    color: $text-muted;
+    line-height: 1.5;
+}
+
+.score-explanation-box {
+    background-color: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    border-radius: 0.6rem;
+    padding: 0.9rem;
+
+    &__title {
+        font-size: 0.725rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: #818cf8;
+        margin: 0 0 0.4rem 0;
+    }
+
+    p {
+        margin: 0;
+        font-size: 0.8rem;
+        color: $text-primary;
+        line-height: 1.45;
+    }
+}
+
+.score-breakdown-card {
+    background: #161b22;
+    border: 1px solid $border-color;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    font-size: 0.75rem;
+
+    &__row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.25rem 0;
+        color: $text-muted;
+
+        strong {
+            color: $text-primary;
+        }
+    }
+}

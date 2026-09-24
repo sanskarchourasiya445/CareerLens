@@ -58,11 +58,129 @@ async function disconnectTestDB() {
 function mockAiService() {
     if (ai && ai.models) {
         ai.models.generateContent = async ({ contents }) => {
+            // If test specifically injected "SIMULATE_MALFORMED_AI_RESPONSE", return invalid JSON
+            if (contents.includes("SIMULATE_MALFORMED_AI_RESPONSE")) {
+                return {
+                    text: "INVALID_NON_JSON_RESPONSE_FROM_AI"
+                };
+            }
+
             // Check if asking for HTML resume or interview report
             if (contents.includes("Generate resume for a candidate")) {
                 return {
                     text: JSON.stringify({
                         html: "<html><body><h1>Candidate Resume</h1><p>Experience in React and Node</p></body></html>"
+                    })
+                };
+            }
+
+            // Check if extracting structured job requirements
+            if (contents.includes("Extract 5 to 12 structured requirements") || contents.includes("expert ATS job analyst")) {
+                return {
+                    text: JSON.stringify({
+                        title: "Senior Full Stack Engineer",
+                        company: "Target Tech Corp",
+                        structuredRequirements: [
+                            {
+                                requirement: "5+ years of React and frontend architecture",
+                                category: "required_skill",
+                                importance: "critical",
+                                weight: 5
+                            },
+                            {
+                                requirement: "Node.js and Express REST API development",
+                                category: "required_skill",
+                                importance: "high",
+                                weight: 4
+                            },
+                            {
+                                requirement: "MongoDB database modeling and query optimization",
+                                category: "technology",
+                                importance: "medium",
+                                weight: 3
+                            },
+                            {
+                                requirement: "TypeScript type safety implementation",
+                                category: "preferred_skill",
+                                importance: "medium",
+                                weight: 2
+                            }
+                        ]
+                    })
+                };
+            }
+
+            // Check if evaluating evidence against structured requirements
+            if (contents.includes("evidence-based Career Intelligence Evaluator") || contents.includes("<REQUIREMENTS_TO_EVALUATE>")) {
+                // If test specifically injected "SIMULATE_MALFORMED_AI_RESPONSE", return invalid JSON
+                if (contents.includes("SIMULATE_MALFORMED_AI_RESPONSE")) {
+                    return {
+                        text: "INVALID_NON_JSON_RESPONSE_FROM_AI"
+                    };
+                }
+
+                return {
+                    text: JSON.stringify({
+                        requirementMatches: [
+                            {
+                                requirement: "5+ years of React and frontend architecture",
+                                category: "required_skill",
+                                importance: "critical",
+                                status: "matched",
+                                evidence: "Experienced in React, Node, Express, MongoDB",
+                                explanation: "Candidate profile explicitly demonstrates React experience."
+                            },
+                            {
+                                requirement: "Node.js and Express REST API development",
+                                category: "required_skill",
+                                importance: "high",
+                                status: "matched",
+                                evidence: "Experienced in React, Node, Express, MongoDB",
+                                explanation: "Candidate profile explicitly demonstrates Node and Express experience."
+                            },
+                            {
+                                requirement: "MongoDB database modeling and query optimization",
+                                category: "technology",
+                                importance: "medium",
+                                status: "matched",
+                                evidence: "Experienced in React, Node, Express, MongoDB",
+                                explanation: "Demonstrated hands-on MongoDB database experience."
+                            },
+                            {
+                                requirement: "TypeScript type safety implementation",
+                                category: "preferred_skill",
+                                importance: "medium",
+                                status: "missing",
+                                evidence: "No supporting evidence found in resume",
+                                explanation: "No explicit TypeScript experience found in the candidate document."
+                            }
+                        ],
+                        skillGaps: [
+                            { skill: "TypeScript", severity: "medium" },
+                            { skill: "Kubernetes", severity: "low" }
+                        ],
+                        scoreExplanation: "Candidate demonstrates strong alignment with core React and Node.js backend requirements, with a gap in TypeScript.",
+                        technicalQuestions: [
+                            {
+                                question: "Explain the virtual DOM in React.",
+                                intention: "Assess React rendering fundamentals.",
+                                answer: "The virtual DOM is an in-memory representation of the real DOM..."
+                            }
+                        ],
+                        behavioralQuestions: [
+                            {
+                                question: "Tell me about a time you handled a tight deadline.",
+                                intention: "Assess time management and communication under pressure.",
+                                answer: "I prioritized critical features using MoSCoW methodology..."
+                            }
+                        ],
+                        preparationPlan: [
+                            {
+                                day: 1,
+                                focus: "TypeScript Fundamentals",
+                                tasks: ["Review generics and union types", "Convert an Express route to TypeScript"]
+                            }
+                        ]
                     })
                 };
             }

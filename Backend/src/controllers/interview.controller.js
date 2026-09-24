@@ -5,6 +5,7 @@ const { calculateDeterministicScore, verifyAndGroundEvidence } = require("../ser
 const interviewReportModel = require("../models/interviewReport.model");
 const resumeVersionModel = require("../models/resumeVersion.model");
 const jobModel = require("../models/job.model");
+const { syncVerifiedEvidenceToCareerProfile } = require("../services/evidenceSync.service");
 const { AppError } = require("../middlewares/error.middleware");
 
 /**
@@ -96,6 +97,15 @@ async function generateInterViewReportController(req, res, next) {
                 behavioralQuestions: evidenceData.behavioralQuestions,
                 skillGaps: evidenceData.skillGaps,
                 preparationPlan: evidenceData.preparationPlan
+            });
+
+            // Synchronize verified grounded evidence to candidate's CareerProfile non-destructively
+            await syncVerifiedEvidenceToCareerProfile({
+                userId: req.user.id,
+                resumeVersionId: resumeVersion._id,
+                verifiedMatches
+            }).catch(err => {
+                console.error("CareerProfile evidence sync error (reusable):", err.message);
             });
 
             return res.status(201).json({
@@ -234,6 +244,17 @@ async function generateInterViewReportController(req, res, next) {
             deterministicScore: finalScore,
             scoreBreakdown
         });
+
+        // Synchronize verified grounded evidence to candidate's CareerProfile non-destructively
+        if (createdResumeVersion) {
+            await syncVerifiedEvidenceToCareerProfile({
+                userId: req.user.id,
+                resumeVersionId: createdResumeVersion._id,
+                verifiedMatches
+            }).catch(err => {
+                console.error("CareerProfile evidence sync error (one-shot):", err.message);
+            });
+        }
 
         return res.status(201).json({
             success: true,

@@ -152,9 +152,88 @@ async function deleteJobByIdController(req, res, next) {
     }
 }
 
+/**
+ * @description Update job tracking status and details (owner check)
+ * @route PATCH /api/jobs/:id
+ * @access Private
+ */
+async function updateJobController(req, res, next) {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(404).json({
+                success: false,
+                message: "Job not found."
+            });
+        }
+
+        const job = await jobModel.findOne({
+            _id: id,
+            user: req.user.id
+        });
+
+        if (!job) {
+            return res.status(404).json({
+                success: false,
+                message: "Job not found."
+            });
+        }
+
+        const { status, applicationDate, notes, sourceUrl, targetRole, title, company } = req.body;
+
+        if (status !== undefined) {
+            const VALID_STATUSES = ["saved", "applied", "interviewing", "offer", "rejected", "archived"];
+            if (!VALID_STATUSES.includes(status)) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Invalid job status. Must be one of: ${VALID_STATUSES.join(", ")}`
+                });
+            }
+            job.status = status;
+        }
+
+        if (applicationDate !== undefined) {
+            job.applicationDate = applicationDate ? new Date(applicationDate) : null;
+        }
+
+        if (notes !== undefined) {
+            job.notes = typeof notes === "string" ? notes.trim() : "";
+        }
+
+        if (sourceUrl !== undefined) {
+            job.sourceUrl = typeof sourceUrl === "string" ? sourceUrl.trim() : "";
+        }
+
+        if (targetRole !== undefined) {
+            job.targetRole = typeof targetRole === "string" ? targetRole.trim() : "";
+        }
+
+        if (title !== undefined && String(title).trim().length > 0) {
+            job.title = String(title).trim();
+        }
+
+        if (company !== undefined && String(company).trim().length > 0) {
+            job.company = String(company).trim();
+        }
+
+        await job.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Job updated successfully.",
+            job
+        });
+
+    } catch (error) {
+        return next(error);
+    }
+}
+
 module.exports = {
     createJobController,
     getAllJobsController,
     getJobByIdController,
-    deleteJobByIdController
+    deleteJobByIdController,
+    updateJobController
 };

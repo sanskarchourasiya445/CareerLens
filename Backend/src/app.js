@@ -30,12 +30,16 @@ const authRouter = require("./routes/auth.routes")
 const interviewRouter = require("./routes/interview.routes")
 const resumeRouter = require("./routes/resume.routes")
 const jobRouter = require("./routes/job.routes")
+const careerRouter = require("./routes/career.routes")
+const roadmapRouter = require("./routes/roadmap.routes")
 
 /* using all the routes here */
 app.use("/api/auth", authRouter)
 app.use("/api/interview", interviewRouter)
 app.use("/api/resumes", resumeRouter)
 app.use("/api/jobs", jobRouter)
+app.use("/api/career", careerRouter)
+app.use("/api/roadmaps", roadmapRouter)
 
 /* 404 and global error handlers */
 app.use(notFoundHandler)

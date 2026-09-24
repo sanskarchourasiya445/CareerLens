@@ -1,0 +1,1433 @@
+// ── Variables & Tokens ────────────────────────────────────────────────────────
+$bg-page:        #0d1117;
+$bg-card:        #161b22;
+$bg-panel:       #1c2230;
+$bg-input:       #1e2535;
+$border-color:   #2a3348;
+$text-primary:   #e6edf3;
+$text-muted:     #7d8590;
+$accent:         #ff2d78;
+$accent-hover:   #ff5292;
+$danger:         #f85149;
+$warning:        #d29922;
+$success:        #3fb950;
+$info:           #58a6ff;
+
+// ── Page Shell ────────────────────────────────────────────────────────────────
+.workspace-page {
+    min-height: 100vh;
+    background-color: $bg-page;
+    color: $text-primary;
+    display: flex;
+    flex-direction: column;
+}
+
+.workspace-container {
+    max-width: 1280px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+// ── Page Title Strip ──────────────────────────────────────────────────────────
+.page-title-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: $text-primary;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.25rem;
+    }
+
+    .page-subtitle {
+        font-size: 0.92rem;
+        color: $text-muted;
+    }
+}
+
+// ── Primary Career Context Banner (Dashboard) ─────────────────────────────────
+.career-context-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 1.75rem 2rem;
+    background: linear-gradient(135deg, rgba(22, 27, 34, 0.9) 0%, rgba(28, 34, 48, 0.9) 100%);
+    border: 1px solid $border-color;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    flex-wrap: wrap;
+
+    .career-context-info {
+        max-width: 680px;
+
+        .context-eyebrow {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: $accent;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.35rem;
+            display: inline-block;
+        }
+
+        .context-role {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .context-description {
+            font-size: 0.9rem;
+            color: $text-muted;
+            line-height: 1.5;
+        }
+    }
+
+    .career-context-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+}
+
+// ── Buttons ───────────────────────────────────────────────────────────────────
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s ease-in-out;
+    border: 1px solid transparent;
+
+    &--primary {
+        background-color: $accent;
+        color: #ffffff;
+
+        &:hover {
+            background-color: $accent-hover;
+            box-shadow: 0 4px 12px rgba(255, 45, 120, 0.35);
+        }
+    }
+
+    &--secondary {
+        background-color: rgba(255, 255, 255, 0.06);
+        border-color: $border-color;
+        color: $text-primary;
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+    }
+
+    &--outline {
+        background-color: transparent;
+        border-color: rgba(255, 45, 120, 0.4);
+        color: $accent;
+        padding: 0.45rem 0.9rem;
+        font-size: 0.82rem;
+
+        &:hover {
+            background-color: rgba(255, 45, 120, 0.1);
+            border-color: $accent;
+        }
+    }
+}
+
+.btn-tiny {
+    padding: 0.3rem 0.7rem;
+    border-radius: 5px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &--primary {
+        background-color: $accent;
+        color: #fff;
+        border: 1px solid transparent;
+
+        &:hover {
+            background-color: $accent-hover;
+        }
+    }
+
+    &--secondary {
+        background-color: transparent;
+        color: $text-muted;
+        border: 1px solid $border-color;
+
+        &:hover {
+            color: $text-primary;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+    }
+}
+
+// ── Compact Metrics Row ───────────────────────────────────────────────────────
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+
+    @media (max-width: 1024px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 560px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.metric-card {
+    background-color: $bg-card;
+    border: 1px solid $border-color;
+    border-radius: 10px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-decoration: none;
+    transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+
+    &:hover {
+        border-color: rgba(255, 45, 120, 0.4);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .metric-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+
+        .metric-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: $text-muted;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .metric-icon {
+            width: 18px;
+            height: 18px;
+            color: $text-muted;
+            opacity: 0.7;
+        }
+    }
+
+    .metric-value {
+        font-size: 2.1rem;
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        margin-bottom: 0.5rem;
+
+        &--active {
+            color: $info;
+        }
+
+        &--success {
+            color: $success;
+        }
+
+        &--danger {
+            color: $danger;
+        }
+    }
+
+    .metric-footer {
+        font-size: 0.76rem;
+        color: $text-muted;
+    }
+}
+
+// ── Intelligence Grid (Dashboard) ─────────────────────────────────────────────
+.intelligence-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+
+    @media (max-width: 860px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.intel-card {
+    background-color: $bg-card;
+    border: 1px solid $border-color;
+    border-radius: 10px;
+    padding: 1.35rem;
+    display: flex;
+    flex-direction: column;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid rgba($border-color, 0.6);
+
+        .title-with-icon {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+
+            svg {
+                width: 18px;
+                height: 18px;
+                color: $accent;
+            }
+
+            h3 {
+                font-size: 1.05rem;
+                font-weight: 700;
+                color: $text-primary;
+            }
+        }
+
+        .intel-tag {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: $accent;
+            background-color: rgba(255, 45, 120, 0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .intel-link {
+            font-size: 0.82rem;
+            color: $accent;
+            text-decoration: none;
+            font-weight: 600;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    &__content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+}
+
+.score-summary-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    .score-display {
+        display: flex;
+        align-items: baseline;
+        gap: 1rem;
+        flex-wrap: wrap;
+
+        .score-number {
+            font-size: 2.75rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            line-height: 1;
+
+            &.score--high { color: $success; }
+            &.score--mid { color: $warning; }
+            &.score--low { color: $danger; }
+        }
+
+        .score-context {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: $text-primary;
+        }
+    }
+
+    .score-footnote {
+        font-size: 0.8rem;
+        color: $text-muted;
+        line-height: 1.4;
+    }
+}
+
+.roadmap-summary-box {
+    .progress-bar-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        .progress-bar-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: $text-primary;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: $bg-input;
+            border-radius: 5px;
+            overflow: hidden;
+
+            &__fill {
+                height: 100%;
+                background: linear-gradient(90deg, $accent 0%, #3fb950 100%);
+                border-radius: 5px;
+                transition: width 0.3s ease;
+            }
+        }
+
+        .progress-detail {
+            font-size: 0.78rem;
+            color: $text-muted;
+        }
+    }
+}
+
+.gaps-preview-list, .jobs-preview-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.gap-preview-item, .job-preview-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 0.85rem;
+    background-color: $bg-panel;
+    border: 1px solid rgba($border-color, 0.7);
+    border-radius: 6px;
+    gap: 0.75rem;
+}
+
+.gap-preview-main, .job-preview-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+
+    .gap-preview-name, .job-preview-title {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: $text-primary;
+    }
+
+    .gap-preview-reason, .job-preview-company {
+        font-size: 0.75rem;
+        color: $text-muted;
+    }
+}
+
+.badge-critical {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #ff8585;
+    background-color: rgba(248, 81, 73, 0.15);
+    border: 1px solid rgba(248, 81, 73, 0.3);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.status-pill {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 12px;
+    text-transform: capitalize;
+
+    &--saved { background-color: rgba(110, 118, 129, 0.15); color: #8b949e; }
+    &--applied { background-color: rgba(88, 166, 255, 0.15); color: #58a6ff; }
+    &--interviewing { background-color: rgba(210, 153, 34, 0.15); color: #d29922; }
+    &--offer { background-color: rgba(63, 185, 80, 0.15); color: #3fb950; }
+    &--rejected { background-color: rgba(248, 81, 73, 0.15); color: #ff8585; }
+    &--archived { background-color: rgba(110, 118, 129, 0.15); color: #8b949e; }
+}
+
+.empty-intel-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+
+    .empty-intel-text {
+        font-size: 0.85rem;
+        color: $text-muted;
+        line-height: 1.5;
+    }
+}
+
+// ── Filter Tabs ───────────────────────────────────────────────────────────────
+.filter-tabs {
+    display: flex;
+    gap: 0.4rem;
+    overflow-x: auto;
+    padding-bottom: 0.35rem;
+
+    .filter-tab {
+        padding: 0.45rem 0.85rem;
+        background-color: transparent;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        color: $text-muted;
+        font-size: 0.84rem;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.15s;
+
+        &:hover {
+            color: $text-primary;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        &--active {
+            color: #ffffff;
+            background-color: $bg-panel;
+            border-color: $border-color;
+        }
+    }
+}
+
+// ── Empty State Cards ─────────────────────────────────────────────────────────
+.empty-state-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    background-color: $bg-card;
+    border: 1px dashed $border-color;
+    border-radius: 12px;
+    text-align: center;
+    gap: 1rem;
+
+    .empty-state-icon {
+        width: 48px;
+        height: 48px;
+        color: $text-muted;
+        opacity: 0.6;
+    }
+
+    h3, h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: $text-primary;
+        max-width: 520px;
+    }
+
+    p {
+        font-size: 0.9rem;
+        color: $text-muted;
+        max-width: 480px;
+        line-height: 1.5;
+    }
+
+    &--insufficient {
+        border-color: rgba(210, 153, 34, 0.4);
+        background-color: rgba(210, 153, 34, 0.03);
+
+        .empty-state-icon-box {
+            color: $warning;
+        }
+    }
+}
+
+// ── Job Tracker Page Styles ───────────────────────────────────────────────────
+.jobs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.job-card {
+    background-color: $bg-card;
+    border: 1px solid $border-color;
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: border-color 0.15s;
+
+    &:hover {
+        border-color: rgba(255, 45, 120, 0.3);
+    }
+
+    &__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+
+        .job-card__title-box {
+            .job-title {
+                font-size: 1.15rem;
+                font-weight: 700;
+                color: $text-primary;
+                margin-bottom: 0.35rem;
+            }
+
+            .job-meta {
+                display: flex;
+                align-items: center;
+                gap: 0.85rem;
+                flex-wrap: wrap;
+                font-size: 0.82rem;
+                color: $text-muted;
+
+                .job-company {
+                    color: $text-primary;
+                    font-weight: 600;
+                }
+
+                .job-target-role {
+                    background-color: rgba(255, 255, 255, 0.05);
+                    padding: 0.15rem 0.5rem;
+                    border-radius: 4px;
+                }
+            }
+        }
+
+        .status-select {
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid $border-color;
+
+            &--saved { background-color: #1e2535; color: #8b949e; }
+            &--applied { background-color: rgba(88, 166, 255, 0.15); color: #58a6ff; border-color: rgba(88, 166, 255, 0.3); }
+            &--interviewing { background-color: rgba(210, 153, 34, 0.15); color: #d29922; border-color: rgba(210, 153, 34, 0.3); }
+            &--offer { background-color: rgba(63, 185, 80, 0.15); color: #3fb950; border-color: rgba(63, 185, 80, 0.3); }
+            &--rejected { background-color: rgba(248, 81, 73, 0.15); color: #ff8585; border-color: rgba(248, 81, 73, 0.3); }
+            &--archived { background-color: #1e2535; color: #8b949e; }
+        }
+    }
+
+    &__body {
+        .job-source-link {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.6rem;
+            font-size: 0.78rem;
+
+            a {
+                color: $info;
+                text-decoration: none;
+                word-break: break-all;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+
+        .job-notes-display {
+            .notes-text {
+                font-size: 0.85rem;
+                color: #c9d1d9;
+                line-height: 1.45;
+            }
+
+            .notes-empty {
+                font-size: 0.8rem;
+                color: $text-muted;
+                font-style: italic;
+            }
+        }
+
+        .job-notes-editor {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+
+            label {
+                font-size: 0.78rem;
+                font-weight: 600;
+                color: $text-muted;
+            }
+
+            textarea {
+                padding: 0.6rem;
+                background-color: $bg-input;
+                border: 1px solid $border-color;
+                border-radius: 6px;
+                color: $text-primary;
+                font-size: 0.85rem;
+                font-family: inherit;
+
+                &:focus {
+                    outline: none;
+                    border-color: $accent;
+                }
+            }
+
+            .notes-actions {
+                display: flex;
+                gap: 0.5rem;
+                justify-content: flex-end;
+            }
+        }
+    }
+
+    &__footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba($border-color, 0.5);
+
+        .footer-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+
+            .link-action {
+                background: none;
+                border: none;
+                color: $text-muted;
+                font-size: 0.82rem;
+                font-weight: 600;
+                cursor: pointer;
+                padding: 0;
+
+                &:hover {
+                    color: $text-primary;
+                }
+
+                &--evaluate {
+                    color: $accent;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+            }
+        }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: $text-muted;
+            cursor: pointer;
+            padding: 0.3rem;
+            border-radius: 4px;
+
+            &:hover {
+                color: $danger;
+                background-color: rgba(248, 81, 73, 0.1);
+            }
+        }
+    }
+}
+
+// ── Modals (Job Modal, Roadmap Modal) ─────────────────────────────────────────
+.job-modal, .roadmap-modal {
+    width: 100%;
+    max-width: 620px;
+    background-color: $bg-card;
+    border: 1px solid $border-color;
+    border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+
+    &__header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid $border-color;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: $text-primary;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: $text-muted;
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+
+            &:hover {
+                color: $text-primary;
+            }
+        }
+    }
+
+    &__form {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+
+// ── Gap Analysis Page Styles ──────────────────────────────────────────────────
+.deterministic-notice-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.85rem 1.25rem;
+    background-color: rgba(88, 166, 255, 0.08);
+    border: 1px solid rgba(88, 166, 255, 0.25);
+    border-radius: 8px;
+
+    .notice-icon svg {
+        color: $info;
+    }
+
+    .notice-content {
+        strong {
+            font-size: 0.85rem;
+            color: #ffffff;
+            display: block;
+            margin-bottom: 0.15rem;
+        }
+
+        p {
+            font-size: 0.8rem;
+            color: #c9d1d9;
+            line-height: 1.4;
+        }
+    }
+}
+
+.gaps-summary-bar {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem 1.5rem;
+    background-color: $bg-card;
+    border: 1px solid $border-color;
+    border-radius: 10px;
+    flex-wrap: wrap;
+
+    .summary-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+
+        &__label {
+            font-size: 0.72rem;
+            color: $text-muted;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        &__val {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: $text-primary;
+
+            &--danger { color: $danger; }
+            &--warning { color: $warning; }
+            &--success { color: $success; }
+        }
+    }
+}
+
+.gaps-table-view {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.gap-item-card {
+    background-color: $bg-card;
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+
+    @media (max-width: 720px) {
+        flex-direction: column;
+    }
+
+    &--critical {
+        border-left: 4px solid $danger;
+    }
+
+    &--high {
+        border-left: 4px solid $warning;
+    }
+
+    &--medium {
+        border-left: 4px solid #e3b341;
+    }
+
+    &--low {
+        border-left: 4px solid #8b949e;
+    }
+
+    &__main {
+        flex: 1;
+
+        .gap-title-group {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.45rem;
+
+            .gap-skill-name {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: $text-primary;
+            }
+
+            .gap-canonical-tag {
+                font-size: 0.78rem;
+                color: $text-muted;
+            }
+
+            .gap-category-tag {
+                font-size: 0.7rem;
+                padding: 0.15rem 0.45rem;
+                background-color: rgba(255, 255, 255, 0.05);
+                border-radius: 4px;
+                color: $text-muted;
+                text-transform: capitalize;
+            }
+        }
+
+        .gap-reason-text {
+            font-size: 0.88rem;
+            color: #c9d1d9;
+            line-height: 1.45;
+        }
+
+        .partial-evidence-box {
+            margin-top: 0.6rem;
+            font-size: 0.78rem;
+
+            .evidence-label {
+                color: $warning;
+                font-weight: 600;
+                display: block;
+                margin-bottom: 0.2rem;
+            }
+
+            .evidence-quote {
+                background-color: rgba(0, 0, 0, 0.25);
+                padding: 0.4rem 0.6rem;
+                border-radius: 4px;
+                color: $text-muted;
+                font-style: italic;
+                margin: 0;
+            }
+        }
+    }
+
+    &__meta {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.75rem;
+        min-width: 150px;
+
+        @media (max-width: 720px) {
+            align-items: flex-start;
+        }
+
+        .meta-badges {
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        .meta-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            text-align: right;
+
+            @media (max-width: 720px) {
+                text-align: left;
+            }
+
+            .stat-row {
+                font-size: 0.78rem;
+                display: flex;
+                gap: 0.4rem;
+                justify-content: flex-end;
+
+                @media (max-width: 720px) {
+                    justify-content: flex-start;
+                }
+
+                .stat-label { color: $text-muted; }
+                .stat-value { color: $text-primary; font-weight: 600; }
+            }
+        }
+    }
+}
+
+.priority-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+
+    &--critical { background-color: rgba(248, 81, 73, 0.15); color: $danger; border: 1px solid rgba(248, 81, 73, 0.3); }
+    &--high { background-color: rgba(210, 153, 34, 0.15); color: $warning; border: 1px solid rgba(210, 153, 34, 0.3); }
+    &--medium { background-color: rgba(227, 179, 65, 0.15); color: #e3b341; border: 1px solid rgba(227, 179, 65, 0.3); }
+    &--low { background-color: rgba(110, 118, 129, 0.15); color: #8b949e; border: 1px solid rgba(110, 118, 129, 0.3); }
+}
+
+.gap-status-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+
+    &--missing { background-color: rgba(248, 81, 73, 0.1); color: $danger; }
+    &--partial { background-color: rgba(210, 153, 34, 0.1); color: $warning; }
+}
+
+.badge-matched {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: $success;
+    background-color: rgba(63, 185, 80, 0.15);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.matched-skills-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    .section-heading {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: $text-primary;
+    }
+
+    .section-subtext {
+        font-size: 0.85rem;
+        color: $text-muted;
+    }
+
+    .matched-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+
+        @media (max-width: 720px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .matched-card {
+        background-color: $bg-card;
+        border: 1px solid $border-color;
+        border-left: 3px solid $success;
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        &__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            .skill-name {
+                font-size: 1rem;
+                font-weight: 600;
+                color: $text-primary;
+            }
+        }
+
+        .matched-frequency {
+            font-size: 0.76rem;
+            color: $text-muted;
+        }
+    }
+}
+
+// ── Learning Roadmap Page Styles ──────────────────────────────────────────────
+.roadmap-selector-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .selector-label {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: $text-muted;
+    }
+
+    .roadmap-select {
+        padding: 0.45rem 0.85rem;
+        background-color: $bg-card;
+        border: 1px solid $border-color;
+        border-radius: 6px;
+        color: $text-primary;
+        font-size: 0.85rem;
+    }
+}
+
+.roadmap-header-card {
+    background-color: $bg-card;
+    border: 1px solid $border-color;
+    border-radius: 10px;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+
+    .roadmap-header-info {
+        .title-and-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.35rem;
+
+            .roadmap-title {
+                font-size: 1.35rem;
+                font-weight: 700;
+                color: $text-primary;
+            }
+
+            .badge-active {
+                font-size: 0.72rem;
+                font-weight: 600;
+                color: $success;
+                background-color: rgba(63, 185, 80, 0.15);
+                border: 1px solid rgba(63, 185, 80, 0.3);
+                padding: 0.15rem 0.5rem;
+                border-radius: 4px;
+            }
+        }
+
+        .roadmap-sub {
+            font-size: 0.85rem;
+            color: $text-muted;
+        }
+    }
+
+    .roadmap-progress-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        min-width: 240px;
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.82rem;
+
+            .progress-pct {
+                font-weight: 700;
+                color: $text-primary;
+            }
+
+            .progress-count {
+                color: $text-muted;
+            }
+        }
+    }
+}
+
+.roadmap-milestones-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 1.25rem;
+}
+
+.roadmap-item-card {
+    background-color: $bg-card;
+    border: 1px solid $border-color;
+    border-radius: 10px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+
+    &--completed {
+        border-color: rgba(63, 185, 80, 0.4);
+        background-color: rgba(63, 185, 80, 0.02);
+    }
+
+    .milestone-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+
+        .milestone-left {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            flex-wrap: wrap;
+
+            .milestone-number {
+                font-size: 0.75rem;
+                font-weight: 700;
+                color: $accent;
+                background-color: rgba(255, 45, 120, 0.1);
+                padding: 0.2rem 0.5rem;
+                border-radius: 4px;
+                text-transform: uppercase;
+            }
+
+            .milestone-skill {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: $text-primary;
+            }
+
+            .milestone-category {
+                font-size: 0.75rem;
+                color: $text-muted;
+                background-color: rgba(255, 255, 255, 0.05);
+                padding: 0.15rem 0.5rem;
+                border-radius: 4px;
+            }
+
+            .hours-badge {
+                font-size: 0.75rem;
+                color: #c9d1d9;
+                background-color: $bg-panel;
+                border: 1px solid $border-color;
+                padding: 0.15rem 0.5rem;
+                border-radius: 4px;
+            }
+        }
+
+        .milestone-status-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+
+            label {
+                font-size: 0.8rem;
+                color: $text-muted;
+                font-weight: 600;
+            }
+
+            .item-status-select {
+                padding: 0.35rem 0.75rem;
+                border-radius: 6px;
+                font-size: 0.82rem;
+                font-weight: 600;
+                border: 1px solid $border-color;
+                cursor: pointer;
+
+                &--not_started { background-color: #1e2535; color: #8b949e; }
+                &--in_progress { background-color: rgba(210, 153, 34, 0.15); color: #d29922; border-color: rgba(210, 153, 34, 0.3); }
+                &--completed { background-color: rgba(63, 185, 80, 0.15); color: #3fb950; border-color: rgba(63, 185, 80, 0.3); }
+                &--skipped { background-color: #1e2535; color: #8b949e; }
+            }
+        }
+    }
+
+    .milestone-reason-box {
+        background-color: rgba(0, 0, 0, 0.2);
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        border-left: 3px solid rgba($border-color, 0.9);
+
+        .reason-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: $text-muted;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        .reason-text {
+            font-size: 0.85rem;
+            color: #c9d1d9;
+            line-height: 1.4;
+        }
+    }
+
+    .milestone-section {
+        .section-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: $text-muted;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.4rem;
+        }
+
+        .outcome-text {
+            font-size: 0.9rem;
+            color: $text-primary;
+            line-height: 1.5;
+        }
+
+        .objectives-list, .practice-list {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+
+            li {
+                font-size: 0.88rem;
+                color: #c9d1d9;
+                line-height: 1.45;
+                position: relative;
+                padding-left: 1.25rem;
+
+                &::before {
+                    content: "•";
+                    position: absolute;
+                    left: 0.25rem;
+                    color: $accent;
+                    font-size: 1.1rem;
+                }
+            }
+        }
+    }
+
+    .completed-timestamp {
+        font-size: 0.78rem;
+        color: $success;
+        font-weight: 600;
+        padding-top: 0.5rem;
+        border-top: 1px solid rgba($border-color, 0.4);
+    }
+}
+
+.generation-info-box {
+    background-color: rgba(88, 166, 255, 0.08);
+    border: 1px solid rgba(88, 166, 255, 0.25);
+    border-radius: 6px;
+    padding: 0.85rem 1rem;
+    font-size: 0.82rem;
+    color: #c9d1d9;
+    line-height: 1.45;
+}
+
+.generating-status {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: rgba(255, 45, 120, 0.08);
+    border: 1px solid rgba(255, 45, 120, 0.25);
+    border-radius: 6px;
+
+    .generating-text {
+        strong {
+            font-size: 0.88rem;
+            color: #ffffff;
+            display: block;
+        }
+
+        p {
+            font-size: 0.8rem;
+            color: $text-muted;
+            margin-top: 0.2rem;
+        }
+    }
+}
+
+// ── Skeletons & Utilities ─────────────────────────────────────────────────────
+.skeleton {
+    background: linear-gradient(90deg, #1c2230 25%, #242c40 50%, #1c2230 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+    height: 120px;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.spinner {
+    width: 22px;
+    height: 22px;
+    border: 3px solid rgba(255, 45, 120, 0.3);
+    border-top-color: $accent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.workspace-alert {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.85rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+
+    &--error {
+        background-color: rgba(248, 81, 73, 0.12);
+        border: 1px solid rgba(248, 81, 73, 0.3);
+        color: #ff8585;
+
+        .alert-content p {
+            font-size: 0.82rem;
+            color: #c9d1d9;
+            margin-top: 0.2rem;
+        }
+    }
+
+    .retry-btn {
+        margin-left: auto;
+        padding: 0.3rem 0.75rem;
+        background: transparent;
+        border: 1px solid currentColor;
+        color: inherit;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        cursor: pointer;
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+    }
+}

@@ -51,10 +51,38 @@ const jobSchema = new mongoose.Schema({
         type: String,
         required: [true, "Raw job description is required"]
     },
-    structuredRequirements: [structuredRequirementSchema]
+    structuredRequirements: [structuredRequirementSchema],
+    // Phase 3 Job Tracking additions
+    status: {
+        type: String,
+        enum: ["saved", "applied", "interviewing", "offer", "rejected", "archived"],
+        default: "saved",
+        index: true
+    },
+    applicationDate: {
+        type: Date
+    },
+    notes: {
+        type: String,
+        trim: true,
+        maxlength: 1000
+    },
+    sourceUrl: {
+        type: String,
+        trim: true,
+        maxlength: 300
+    },
+    targetRole: {
+        type: String,
+        trim: true,
+        maxlength: 100
+    }
 }, {
     timestamps: true
 });
+
+jobSchema.index({ user: 1, status: 1 });
+jobSchema.index({ user: 1, createdAt: -1 });
 
 const jobModel = mongoose.model("Job", jobSchema);
 

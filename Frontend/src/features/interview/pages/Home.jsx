@@ -3,6 +3,7 @@ import "../style/home.scss";
 import { useInterview } from '../hooks/useInterview.js';
 import { useAuth } from '../../auth/hooks/useAuth.js';
 import { useNavigate } from 'react-router';
+import WorkspaceNav from '../../../components/WorkspaceNav';
 
 const Home = () => {
     const {
@@ -167,17 +168,9 @@ const Home = () => {
     const activeError = localError || apiError;
 
     return (
-        <div className='home-page'>
-
-            {/* Top Bar with User Info and Logout */}
-            <div className='home-top-bar'>
-                {user && (
-                    <span className='user-greeting'>
-                        Logged in as <strong>{user.username}</strong>
-                    </span>
-                )}
-                <button onClick={onLogout} className='logout-button'>Log Out</button>
-            </div>
+        <div style={{ width: "100%", minHeight: "100vh", backgroundColor: "#0d1117" }}>
+            <WorkspaceNav />
+            <div className='home-page' style={{ minHeight: "calc(100vh - 65px)", paddingTop: "1.5rem" }}>
 
             {/* Page Header */}
             <header className='page-header'>
@@ -460,6 +453,7 @@ const Home = () => {
                 <a href='#'>Help Center</a>
             </footer>
         </div>
+    </div>
     );
 };
 

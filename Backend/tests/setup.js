@@ -74,6 +74,102 @@ function mockAiService() {
                 };
             }
 
+            // Check if generating AI learning roadmap content
+            if (contents.includes("Career Development Curriculum Architect") || contents.includes("<GAPS_TO_LEARN>")) {
+                if (contents.includes("SIMULATE_MALFORMED_AI_RESPONSE")) {
+                    return {
+                        text: "INVALID_NON_JSON_RESPONSE_FROM_AI"
+                    };
+                }
+
+                if (contents.includes("SIMULATE_MISSING_FIELDS_AI_RESPONSE")) {
+                    return {
+                        text: JSON.stringify({
+                            items: [
+                                {
+                                    canonicalSkill: "Docker"
+                                    // missing targetOutcome, learningObjectives, practiceIdeas
+                                }
+                            ]
+                        })
+                    };
+                }
+
+                if (contents.includes("SIMULATE_INVALID_SCHEMA_RESPONSE")) {
+                    return {
+                        text: JSON.stringify({
+                            items: [
+                                {
+                                    canonicalSkill: "Docker",
+                                    targetOutcome: "Too short", // min 10 chars required
+                                    learningObjectives: ["Only one"], // min 2 required
+                                    practiceIdeas: ["Only one"] // min 2 required
+                                }
+                            ]
+                        })
+                    };
+                }
+
+                if (contents.includes("SIMULATE_AI_THROW_ERROR")) {
+                    throw new Error("Simulated network/API failure from Gemini API");
+                }
+
+                if (contents.includes("SIMULATE_AI_MISMATCHED_CANONICAL_SKILL")) {
+                    return {
+                        text: JSON.stringify({
+                            items: [
+                                {
+                                    canonicalSkill: "Kubernetes", // Mismatched: gap is Docker
+                                    targetOutcome: "Master Kubernetes orchestration and Helm charts",
+                                    learningObjectives: [
+                                        "Understand Kubernetes Pods, ReplicaSets, and Deployments",
+                                        "Configure Ingress controllers and ClusterIP services"
+                                    ],
+                                    practiceIdeas: [
+                                        "Deploy a sample microservice to Minikube cluster",
+                                        "Write Kubernetes manifests for high-availability workloads"
+                                    ],
+                                    estimatedHours: 40
+                                }
+                            ]
+                        })
+                    };
+                }
+
+                return {
+                    text: JSON.stringify({
+                        items: [
+                            {
+                                canonicalSkill: "Docker",
+                                targetOutcome: "Confidently containerize microservices and articulate multi-stage build benefits in technical interviews.",
+                                learningObjectives: [
+                                    "Master Dockerfile instructions and multi-stage build optimization",
+                                    "Manage multi-container setups using Docker Compose networks and volumes"
+                                ],
+                                practiceIdeas: [
+                                    "Containerize an existing React and Node.js service using Docker Compose",
+                                    "Create a production-grade multi-stage Docker build for a full-stack application"
+                                ],
+                                estimatedHours: 15
+                            },
+                            {
+                                canonicalSkill: "Kubernetes",
+                                targetOutcome: "Deploy and manage stateful containerized workloads on Kubernetes clusters in production.",
+                                learningObjectives: [
+                                    "Understand Pods, Services, and Ingress controllers",
+                                    "Configure ConfigMaps and Secrets securely"
+                                ],
+                                practiceIdeas: [
+                                    "Set up a local Minikube cluster and deploy containerized services",
+                                    "Configure ingress and persistent volume claims for a database workload"
+                                ],
+                                estimatedHours: 20
+                            }
+                        ]
+                    })
+                };
+            }
+
             // Check if extracting structured job requirements
             if (contents.includes("Extract 5 to 12 structured requirements") || contents.includes("expert ATS job analyst")) {
                 return {

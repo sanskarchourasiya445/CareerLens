@@ -26,6 +26,13 @@ jobRouter.get("/", authMiddleware.authUser, jobController.getAllJobsController);
 jobRouter.get("/:id", authMiddleware.authUser, jobController.getJobByIdController);
 
 /**
+ * @route PATCH /api/jobs/:id
+ * @description Update job tracking status and details
+ * @access Private
+ */
+jobRouter.patch("/:id", authMiddleware.authUser, jobController.updateJobController);
+
+/**
  * @route DELETE /api/jobs/:id
  * @description Delete specific job by ID
  * @access Private

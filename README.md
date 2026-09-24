@@ -1,4 +1,4 @@
-# Rizzume
+# CareerLens
 
 **AI Career Intelligence Platform**
 

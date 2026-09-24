@@ -43,6 +43,3 @@ generated-pdfs
 *.njsproj
 *.sln
 *.sw?
-
-# internal audit docs & reports (do not push to git)
-docs/

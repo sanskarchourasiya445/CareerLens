@@ -1,368 +1,453 @@
-# 🎯 Rizzume — AI Interview Report & Resume Generator
+# Rizzume
 
-<div align="center">
+**AI Career Intelligence Platform**
 
-![Rizzume Banner](https://img.shields.io/badge/Rizzume-AI%20Powered-6366f1?style=for-the-badge&logo=sparkles&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E)
-![Express](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
-
-**An AI-powered full-stack web application that evaluates your resume against job descriptions, generates detailed interview reports, and provides intelligent career insights.**
-
-[Features](#-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [Project Structure](#-project-structure) • [API Reference](#-api-reference) • [Contributing](#-contributing)
-
-</div>
+An evidence-based career intelligence platform that connects resumes, target jobs, deterministic skill gaps, learning roadmaps, and interview evaluation into a unified candidate workspace.
 
 ---
 
-## 📌 Overview
+## Overview
 
-**Rizzume** is an **evidence-based AI career intelligence platform** that systematically compares a resume against a specific target job description. Unlike generic LLM-based feedback tools, Rizzume grounds every match in verifiable citations extracted directly from the candidate's resume, computes a **100% deterministic fit score** using weighted algorithms, and offers structured, repeatable evaluation across multiple resume versions and job targets.
+Most career platforms treat resume generation, job tracking, and interview preparation as disjointed, single-pass generative AI prompts. This leads to hallucinated match scores, ungrounded resume claims, and disconnected advice.
+
+**Rizzume** is built around a closed-loop **evidence-based career intelligence architecture**. Candidate claims are grounded against verified resume text citations, target job requirements are analyzed through deterministic mathematical scoring, skill gaps are aggregated across multiple roles, and AI is strictly constrained to educational curriculum synthesis with validated schemas.
+
+```text
+Resume PDF / Text
+       ↓
+Deterministic Evidence Extraction & Grounding
+       ↓
+Target Job Requirement Aggregation
+       ↓
+Deterministic Multi-Job Gap Engine (O(S × J))
+       ↓
+Bounded AI Learning Roadmap (Gemini 2.5 Flash + Zod)
+       ↓
+Active Job Pipeline Tracking (Saved → Applied → Interviewing → Offer)
+       ↓
+Point-in-Time Interview Evaluation & Sandboxed PDF Generation
+       ↓
+Unified Career Intelligence Dashboard
+```
 
 ---
 
-## ✨ Features
+## Key Features
 
-- 🎯 **Evidence-Grounded Matching** — Extracts granular job requirements (technical, experience, domain, soft skills) and categorizes resume alignment into `matched`, `partial`, or `missing` with verbatim quote citations.
-- 🧮 **Deterministic Scoring Engine** — Zero LLM hallucinated scores. Match scores (0–100) are computed mathematically via backend importance weighting and critical missing skill penalties.
-- 📁 **Reusable Resumes & Target Jobs** — First-class entities for resumes and job descriptions allowing users to evaluate multiple resume variations against saved job postings without repeated uploads.
-- 📄 **Hardened PDF Parsing** — Strict 5MB limit, magic-byte (`%PDF-`) validation, and 50 readable character thresholds preventing corrupted or image-only submissions.
-- 🛡️ **Prompt Injection Defenses** — Hardened boundary delimiters (`<SYSTEM_INSTRUCTIONS>`, `<UNTRUSTED_RESUME>`, etc.) and strict runtime Zod schema parsing.
-- 📊 **Interactive Evidence UI** — Filter requirements by match status, inspect verbatim evidence quotes, review missing requirement warnings, and visualize score breakdowns.
-- 🔐 **Robust Authentication** — JWT-based auth with HTTP-only cookies, token blacklisting on logout, and strict IDOR route guards.
-- ⚡ **Full-Stack Performance** — Fast Vite + React 18 frontend and scalable Express + MongoDB backend with automated rollback on generation failure.
+| Capability | What It Does | Implementation Invariant |
+| :--- | :--- | :--- |
+| **Resume Intelligence** | Validates, extracts, and indexes candidate resume versions. | Magic-byte (`%PDF-`) verification, 5MB file ceiling, $\ge 50$ non-whitespace character threshold. |
+| **Evidence Grounding** | Ingests candidate skills into a unified 1:1 `CareerProfile`. | Verbatim text quote citations; ungrounded claims are classified as `unverified` and excluded from matched skills. |
+| **Target Job Tracker** | Tracks candidate job applications with structured requirements. | Canonical 6-stage lifecycle: `saved \| applied \| interviewing \| offer \| rejected \| archived`. |
+| **Deterministic Gap Engine** | Aggregates skill gaps across all active target roles. | Pure mathematical scoring formula factoring role importance, candidate coverage, and frequency multiplier. |
+| **Learning Roadmap** | Generates point-in-time milestone snapshots to close skill gaps. | Bounded AI generation: gap metadata and priorities are immutable; Gemini synthesizes only learning objectives and practice ideas. |
+| **Interview Intelligence** | Generates technical & behavioral questions with rubrics. | Point-in-time interview evaluation report with sandboxed Puppeteer PDF export (SSRF-protected). |
+| **Career Dashboard** | Unified command center for candidate readiness KPIs. | Zero mock data; safely handles null readiness scores when zero jobs have been evaluated. |
 
 ---
 
-## 🛠️ Tech Stack
+## Architecture
+
+```text
+┌────────────────────────────────────────────────────────────────────────┐
+│                        React 19 Frontend (Vite)                        │
+│   Dynamic Route Splitting (React.lazy) · Accessible Modals (WAI-ARIA)  │
+│   Unified Axios Client (apiClient.js) · Centralized 401 Interceptor    │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ HTTPS / HTTP-Only Cookies
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                        Express 5 Backend API                           │
+│   Auth Middleware (JWT + TTL Blacklist) · User-Scoped Queries (IDOR)   │
+│   Credentialed CORS Allowlist · Delimiter Prompt Injection Defense     │
+└─────────┬─────────────────────────┬──────────────────────────┬─────────┘
+          │                         │                          │
+          ▼                         ▼                          ▼
+┌──────────────────┐      ┌──────────────────┐       ┌──────────────────┐
+│     MongoDB      │      │  Google Gemini   │       │    Puppeteer     │
+│  Mongoose 9.4    │      │  2.5 Flash API   │       │  Headless PDF    │
+│  User Profiles,  │      │  Structured      │       │  SSRF-Protected, │
+│  Jobs, Roadmaps  │      │  Extraction Only │       │  Sandboxed HTML  │
+└──────────────────┘      └──────────────────┘       └──────────────────┘
+```
+
+---
+
+## Deterministic Gap Scoring Engine
+
+A core architectural principle of Rizzume is that **AI does not score candidate match readiness or calculate skill gaps**. All gap scores are derived deterministically using an $O(S \times J)$ mathematical engine implemented in [`Backend/src/services/gap.service.js`](Backend/src/services/gap.service.js):
+
+$$\text{GapScore}(s) = \max_{j}(W_{\text{importance}}(s, j)) \times F_{\text{gap}}(s) \times M_{\text{freq}}(s)$$
+
+### 1. Importance Weight ($W_{\text{importance}}$)
+Reflects the maximum requirement priority across all target jobs demanding skill $s$:
+- `critical`: $4$
+- `high`: $3$
+- `medium`: $2$
+- `low`: $1$
+
+### 2. Gap Factor ($F_{\text{gap}}$)
+Evaluated against grounded candidate evidence citations in `CareerProfile`:
+- `missing`: $1.0$ (Candidate has no verified coverage)
+- `partial`: $0.5$ (Candidate has partial verified coverage)
+- `matched`: $0.0$ (Candidate has demonstrated verified coverage)
+
+### 3. Frequency Multiplier ($M_{\text{freq}}$)
+Scales linearly with recurring demand across multiple target jobs, capped at $2.00\times$:
+$$M_{\text{freq}} = 1 + \min(1.0, 0.25 \times (\text{frequency} - 1))$$
+
+| Target Jobs Requiring Skill | Frequency Multiplier ($M_{\text{freq}}$) |
+| :---: | :---: |
+| 1 job | $1.00\times$ |
+| 2 jobs | $1.25\times$ |
+| 3 jobs | $1.50\times$ |
+| 4 jobs | $1.75\times$ |
+| 5+ jobs | $2.00\times$ |
+
+### Deterministic Invariants
+- **Zero Gap for Matched Skills**: When $F_{\text{gap}} = 0.0$, $\text{GapScore} = 0.0$ regardless of frequency. Matched skills never clutter the learning backlog, while candidate citations are preserved for provenance.
+- **Priority Categorization**:
+  - `critical`: $\text{GapScore} \ge 4.0$ OR ($\text{Importance} = \text{critical}$ AND $F_{\text{gap}} > 0$)
+  - `high`: $2.5 \le \text{GapScore} < 4.0$
+  - `medium`: $1.0 \le \text{GapScore} < 2.5$
+  - `low`: $0.0 < \text{GapScore} < 1.0$
+  - `matched`: $\text{GapScore} = 0.0$
+- **Deterministic Sort**: Items are sorted by priority (`critical` > `high` > `medium` > `low`), descending gap score, descending job frequency, and ascending alphabetical canonical name.
+
+---
+
+## AI Boundary & Safety Model
+
+Google Gemini (`@google/genai`) is strictly constrained to prevent prompt injection and hallucinated evaluations:
+
+```text
+Deterministic Inputs (Skill, Category, Priority, GapScore)
+                     ↓
+Explicit Delimiter Isolation (---BEGIN/END RESUME TEXT---)
+                     ↓
+Gemini 2.5 Flash Generation
+                     ↓
+Safe JSON Parse (Throws 502 AppError on Malformed Response)
+                     ↓
+Zod Schema Validation (resumePdfSchema.safeParse)
+                     ↓
+Accepted Output Bound to Deterministic Record
+```
+
+1. **Prompt Injection Delimiters**: Untrusted candidate input (resume text, self-descriptions) is wrapped in strict boundary delimiters (`---BEGIN RESUME TEXT---` and `---END RESUME TEXT---`) with instructions instructing the model to treat the content solely as data.
+2. **Pedagogical Boundary**: During roadmap generation, the AI is **prohibited** from altering skill names, priorities, gap status, or reasons. It is only permitted to synthesize:
+   - `targetOutcome` (string)
+   - `learningObjectives` (array of strings)
+   - `practiceIdeas` (array of strings)
+   - `estimatedHours` (number)
+3. **Parse Resilience**: AI responses pass through resilient `try/catch` JSON parsing. If the LLM generates truncated or invalid JSON, a clean 502 `AppError` is thrown, preventing server crashes and raw output leakage.
+
+---
+
+## Security & Defense in Depth
+
+- **Authentication & Blacklisting**: JWT tokens signed with HMAC-SHA256, transmitted via `httpOnly`, `SameSite: strict` cookies. Tokens are invalidated upon logout with a MongoDB TTL-indexed blacklist (24-hour expiration).
+- **Broken Object-Level Authorization (IDOR) Protection**: All database queries are scoped to the authenticated session (`{ user: req.user.id }`). Attempting to read, mutate, or delete another user's job, resume, roadmap, or interview report returns a clean 404.
+- **Production Credentialed CORS**: Configured via `FRONTEND_URL` and `ALLOWED_ORIGINS`. Disallows wildcards (`*`) when credentials are enabled and strictly rejects `localhost` / `127.0.0.1` origins in production (`NODE_ENV === "production"`).
+- **Document Upload Validation**: 5MB ceiling, MIME-type verification, `%PDF-` magic-byte checking, and extraction validation ensuring $\ge 50$ readable characters to reject blank or scanned documents.
+- **Puppeteer Sandboxing & SSRF Mitigation**: PDF generation runs with full request interception (aborting all external `http`, `https`, and local `file` requests), disabled script execution, and sanitized HTML.
+- **Information Disclosure Prevention**: Express 5 error handling middleware intercepts all exceptions, sanitizes database errors, and returns consistent `{ success: false, message }` envelopes without stack traces.
+
+---
+
+## Performance & Bundle Optimization
+
+Implemented in Phase 4 via route-level code splitting using `React.lazy()` and `<Suspense>` wrapped around all 8 application pages:
+
+| Metric | Before Optimization | After Route-Level Splitting | Improvement |
+| :--- | :---: | :---: | :---: |
+| **Initial JavaScript Bundle** | 413.50 kB | 325.07 kB | **-21.4%** |
+| **Initial Gzip Transfer** | 122.87 kB | 106.48 kB | **-13.3%** |
+| **Initial CSS Bundle** | 49.69 kB | 0.95 kB | **-98.1%** |
+| **Vite Production Build Time** | ~1.2s | **699ms** | **~41% faster** |
+
+Each major route (`Dashboard`, `GapAnalysis`, `JobTracker`, `LearningRoadmap`, `Home`, `Interview`, `Login`, `Register`) is partitioned into an on-demand JavaScript chunk, loaded alongside an accessible `<RouteFallback />` component with `role="status"` and `aria-live="polite"`.
+
+---
+
+## Domain Model & Canonical Lifecycle Contracts
+
+```mermaid
+erDiagram
+    User ||--o| CareerProfile : "owns (1:1)"
+    User ||--o{ ResumeVersion : "owns"
+    User ||--o{ Job : "owns"
+    User ||--o{ InterviewReport : "owns"
+    User ||--o{ LearningRoadmap : "owns"
+
+    Job ||--o{ InterviewReport : "evaluated in"
+    ResumeVersion ||--o{ InterviewReport : "evaluated in"
+    ResumeVersion ||--o{ CareerProfile : "sources skill evidence"
+    LearningRoadmap ||--o{ Job : "aggregates requirements from"
+```
+
+### 1. `Job.status` (Canonical Recruitment Pipeline)
+```text
+saved → applied → interviewing → offer → rejected | archived
+```
+*(Strictly eliminates non-canonical statuses like `offered` or `pending`.)*
+
+### 2. `LearningRoadmap.status` (Snapshot Lifecycle)
+```text
+active → completed | archived
+```
+
+### 3. `RoadmapItem.status` (Milestone Execution)
+```text
+not_started → in_progress → completed | skipped
+```
+
+### 4. `CareerProfile.skills[].status` (Grounded Claim Status)
+```text
+demonstrated | partial | unverified
+```
+
+---
+
+## Application Routes
+
+| Route | Access | Component | Purpose |
+| :--- | :---: | :--- | :--- |
+| `/` | Public | `Home.jsx` | Landing hero, quick evaluator entry, platform value overview. |
+| `/login` | Public | `Login.jsx` | Email/password authentication, sets HTTP-only cookie. |
+| `/register` | Public | `Register.jsx` | User registration and initial credential creation. |
+| `/dashboard` | Protected | `Dashboard.jsx` | Career readiness KPI summary, quick actions, active job cards. |
+| `/jobs` | Protected | `JobTracker.jsx` | Recruitment pipeline board with status transitions & modal editor. |
+| `/gaps` | Protected | `GapAnalysis.jsx` | Deterministic skill gap aggregation, priority filters, evidence viewer. |
+| `/roadmap` | Protected | `LearningRoadmap.jsx` | Snapshot milestone tracker, progress status mutator, learning details. |
+| `/interview` | Protected | `Interview.jsx` | Point-in-time interview evaluation report generator and history viewer. |
+| `/interview/:interviewId` | Protected | `Interview.jsx` | Historical interview report detail view with PDF download. |
+
+---
+
+## API Reference
+
+### Authentication
+- `POST /api/auth/register` — Register a new account (`name`, `email`, `password`).
+- `POST /api/auth/login` — Authenticate and receive HTTP-only JWT cookie.
+- `POST /api/auth/logout` — Revoke active token into MongoDB blacklist.
+- `GET /api/auth/get-me` — Retrieve active authenticated user profile.
+
+### Career Profile & Dashboard
+- `GET /api/career/profile` — Fetch 1:1 candidate career profile with skill inventory and citations.
+- `PUT /api/career/profile` — Update candidate target role, experience level, domains, or goals.
+- `GET /api/career/dashboard` — Fetch aggregated readiness score, evaluated job count, active jobs, and top gaps.
+
+### Skill Gap Analysis
+- `GET /api/career/gaps` — Calculate and return deterministic skill gaps aggregated across all target jobs.
+
+### Target Jobs Pipeline
+- `POST /api/jobs` — Create a new target job (`title`, `company`, `description`, `status`).
+- `GET /api/jobs` — List all target jobs owned by the user (supports `?status=` and pagination).
+- `GET /api/jobs/:id` — Get single job details with structured requirements.
+- `PATCH /api/jobs/:id` — Update job status, application date, notes, or requirements.
+- `DELETE /api/jobs/:id` — Delete target job record.
+
+### Learning Roadmaps
+- `POST /api/roadmaps` — Generate a new snapshot roadmap based on current deterministic skill gaps.
+- `GET /api/roadmaps` — List all historical roadmaps for the user.
+- `GET /api/roadmaps/:id` — Get single roadmap snapshot with milestone items.
+- `PATCH /api/roadmaps/:id/items/:itemId` — Update milestone progress status (`not_started`, `in_progress`, `completed`, `skipped`). Rejects tampering with deterministic fields.
+
+### Interview & Resume Evaluation
+- `POST /api/interview/` — Upload resume PDF and job description to generate an interview evaluation report.
+- `GET /api/interview/` — List historical interview evaluation reports.
+- `GET /api/interview/:interviewId` — Retrieve single interview report.
+- `POST /api/interview/generate-resume-pdf` — Render sandboxed, tailored PDF resume via Puppeteer.
+
+---
+
+## Tech Stack
 
 ### Frontend
-| Technology | Purpose |
-|---|---|
-| **React 18** | UI library with hooks & context |
-| **Vite** | Build tool & dev server |
-| **React Router** | Client-side routing |
-| **SCSS** | Component-scoped styling |
-| **Axios** | HTTP client for API calls |
-| **Context API** | Global state management (Auth & Interview) |
+- **Framework**: React 19 (`react` 19.2.4, `react-dom` 19.2.4)
+- **Build Tool**: Vite 8 (`vite` 8.0.3) with `@vitejs/plugin-react`
+- **Routing**: React Router 7 (`react-router` 7.14.0)
+- **HTTP Client**: Axios 1.14.0 with centralized 401 interceptor
+- **Styling**: SCSS (`sass` 1.99.0) with modular stylesheets
+- **Accessibility**: WAI-ARIA dialog attributes, keyboard focus trapping, `RouteFallback` live region
 
 ### Backend
-| Technology | Purpose |
-|---|---|
-| **Node.js** | JavaScript runtime |
-| **Express.js** | Web framework & REST API |
-| **MongoDB + Mongoose** | Database & ODM |
-| **JWT** | Stateless authentication |
-| **Multer** | File upload middleware |
-| **AI Service** | Resume analysis & report generation |
+- **Runtime**: Node.js (LTS >= 18)
+- **Framework**: Express 5 (`express` 5.2.1)
+- **Database**: MongoDB with Mongoose (`mongoose` 9.4.1)
+- **Validation**: Zod (`zod` 4.3.6) and `zod-to-json-schema`
+- **Security**: `bcryptjs` 3.0.3, `jsonwebtoken` 9.0.3, `cookie-parser` 1.4.7, `cors` 2.8.6
+- **Document Processing**: `pdf-parse` 2.4.5, `multer` 2.1.1, `puppeteer` 24.40.0
+- **AI Integration**: Google GenAI SDK (`@google/genai` 1.48.0)
+
+### Testing Harness
+- **Test Runner**: Node.js native test runner (`node:test`, `node --test`)
+- **API Assertions**: Supertest 7.3.0
+- **In-Memory Database**: MongoDB Memory Server (`mongodb-memory-server` 11.3.0)
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
-```
+```text
 Rizzume-AiReportAndResumeGenerator/
-│
 ├── Backend/
-│   ├── index.js                      # Server entry point
-│   ├── package.json
-│   │
+│   ├── index.js                      # Application server entrypoint
 │   ├── src/
-│   │   ├── app.js                    # Express app configuration
-│   │   │
-│   │   ├── config/
-│   │   │   └── database.js           # MongoDB connection setup
-│   │   │
-│   │   ├── controllers/
-│   │   │   ├── auth.controller.js    # Register, login, logout logic
-│   │   │   ├── resume.controller.js  # Reusable resume uploads & management
-│   │   │   ├── job.controller.js     # Target job descriptions & AI parsing
-│   │   │   └── interview.controller.js # Evidence-grounded analysis & reports
-│   │   │
-│   │   ├── middlewares/
-│   │   │   ├── auth.middleware.js    # JWT verification & blacklist middleware
-│   │   │   ├── file.middleware.js    # Multer file upload handling (5MB PDF limit)
-│   │   │   └── error.middleware.js   # Centralized error handler
-│   │   │
-│   │   ├── models/
-│   │   │   ├── user.model.js         # User schema
-│   │   │   ├── resumeVersion.model.js# Reusable resume entity (extracted text & meta)
-│   │   │   ├── job.model.js          # Reusable job entity (structured requirements)
-│   │   │   ├── interviewReport.model.js # Evidence-based report & deterministic scores
-│   │   │   └── blacklist.model.js    # Invalidated JWT tokens
-│   │   │
-│   │   ├── routes/
-│   │   │   ├── auth.routes.js        # /api/auth/* endpoints
-│   │   │   ├── resume.routes.js      # /api/resumes/* endpoints
-│   │   │   ├── job.routes.js         # /api/jobs/* endpoints
-│   │   │   └── interview.routes.js   # /api/interview/* endpoints
-│   │   │
-│   │   └── services/
-│   │       ├── ai.service.js         # Structured requirement extraction & evidence pipeline (Zod-validated)
-│   │       ├── scoring.service.js    # Pure deterministic scoring engine
-│   │       └── pdf.service.js        # Hardened Puppeteer PDF generation
-│   │
-│   └── tests/                        # Automated Jest/Supertest suite (39 tests)
+│   │   ├── app.js                    # Express app configuration & hardened CORS
+│   │   ├── config/                   # Database connection & environment setup
+│   │   ├── controllers/              # Route controllers (auth, career, job, roadmap, interview)
+│   │   ├── middlewares/              # Auth, file upload validation, error middleware
+│   │   ├── models/                   # Mongoose models (User, CareerProfile, Job, Roadmap, etc.)
+│   │   ├── routes/                   # Express routes
+│   │   └── services/                 # Gap engine, normalizer, scoring, AI service
+│   ├── tests/                        # 15 backend test suites (147 tests)
+│   ├── package.json
+│   └── .env.example                  # Backend environment template
 │
-└── Frontend/
-    ├── index.html
-    ├── vite.config.js
-    │
-    └── src/
-        ├── App.jsx                   # Root component
-        ├── app.routes.jsx            # Route definitions
-        ├── main.jsx                  # React DOM entry
-        │
-        └── features/
-            ├── auth/                 # Authentication feature
-            │   ├── auth.context.jsx  # Auth state provider
-            │   ├── hooks/useAuth.js  # Auth hook
-            │   ├── pages/            # Login & Register pages
-            │   ├── components/Protected.jsx  # Route guard
-            │   └── services/auth.api.js      # Auth API calls
-            │
-            └── interview/            # Evidence-based interview feature
-                ├── interview.context.jsx     # Interview, Resume & Job state provider
-                ├── hooks/useInterview.js     # Interview hook
-                ├── pages/            # Home (Dual-mode selectors) & Interview (Evidence UI)
-                └── services/interview.api.js # API calls for reports, resumes & jobs
+├── Frontend/
+│   ├── src/
+│   │   ├── App.jsx                   # Root application with top-level AuthProvider & Suspense
+│   │   ├── app.routes.jsx            # Dynamic React.lazy route definitions
+│   │   ├── components/               # Accessible UI components (ProfileModal, RouteFallback, WorkspaceNav)
+│   │   ├── features/                 # Feature-based domain architecture (auth, career, interview)
+│   │   ├── services/                 # Canonical apiClient.js with interceptors
+│   │   └── main.jsx                  # React DOM mount point
+│   ├── tests/                        # 4 frontend test suites (43 tests)
+│   ├── package.json
+│   └── vite.config.js
+│
+├── docs/
+│   └── audit/                        # Archival engineering reports & verification index
+│       ├── README.md                 # Engineering audit index
+│       ├── phase-0-audit-report.md   # Initial repository baseline audit
+│       ├── phase-1-report.md         # Foundation & security hardening report
+│       ├── phase-2-report.md         # Grounded evidence scoring report
+│       ├── phase-3-report.md         # Career intelligence platform report
+│       └── phase-4-report.md         # Production hardening & release QA report
+│
+├── .gitignore
+└── README.md                         # This file
 ```
 
 ---
 
-## 🚀 Getting Started
+## Local Development Setup
 
 ### Prerequisites
-
-- **Node.js** v18+
-- **MongoDB** (local or [MongoDB Atlas](https://www.mongodb.com/cloud/atlas))
-- **npm** or **yarn**
-
----
+- **Node.js**: v18.0.0 or higher
+- **MongoDB**: Local MongoDB instance running on `mongodb://127.0.0.1:27017` (or MongoDB Atlas URI)
+- **Google Gemini API Key**: From [Google AI Studio](https://aistudio.google.com/)
 
 ### 1. Clone the Repository
-
 ```bash
 git clone https://github.com/sanskarchourasiya445/Rizzume-AiReportAndResumeGenerator.git
 cd Rizzume-AiReportAndResumeGenerator
 ```
 
----
-
-### 2. Backend Setup
-
+### 2. Configure Backend
 ```bash
 cd Backend
 npm install
+cp .env.example .env
 ```
-
-Create a `.env` file in the `Backend/` directory (or copy from `.env.example`):
-
-```env
+Edit `Backend/.env` to configure your settings:
+```ini
 PORT=3000
-MONGO_URI=mongodb://localhost:27017/rizzume_ai
+MONGO_URI=mongodb://127.0.0.1:27017/rizzume_ai
 JWT_SECRET=your_jwt_secret_key_here
-GOOGLE_GENAI_API_KEY=your_google_genai_api_key_here
+GOOGLE_GENAI_API_KEY=your_google_gemini_api_key_here
 NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
+ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
 ```
 
-Start the backend server:
-
-```bash
-npm start
-# or for development with hot reload:
-npm run dev
-```
-
-The backend will run at `http://localhost:3000`
-
----
-
-### 3. Frontend Setup
-
+### 3. Configure Frontend
 ```bash
 cd ../Frontend
 npm install
 ```
 
-Create a `.env` file in the `Frontend/` directory (or copy from `.env.example`):
-
-```env
-VITE_API_BASE_URL=http://localhost:3000
-```
-
-Start the development server:
-
-```bash
-npm run dev
-```
-
-The frontend will run at `http://localhost:5173`
-
----
-
-### 4. Running Automated Tests
-
-Run the backend automated test suite (uses isolated in-memory MongoDB):
-
+### 4. Run the Application
+Start the backend server:
 ```bash
 cd Backend
+npm run dev     # Starts Express on http://localhost:3000
+```
+
+In a separate terminal, start the frontend client:
+```bash
+cd Frontend
+npm run dev     # Starts Vite on http://localhost:5173
+```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+---
+
+## Testing & Verification
+
+Both tiers feature comprehensive automated test suites using the native Node.js test runner (`node:test`):
+
+```bash
+# Run all Backend test suites (in-memory MongoDB)
+cd Backend
 npm test
+
+# Run all Frontend test suites
+cd Frontend
+npm test
+
+# Verify Frontend production build
+cd Frontend
+npm run build
 ```
 
----
-
-## 🔌 API Reference
-
-### Authentication Endpoints
-
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `POST` | `/api/auth/register` | Create a new user account | ❌ |
-| `POST` | `/api/auth/login` | Login and receive JWT token | ❌ |
-| `POST` | `/api/auth/logout` | Logout and blacklist token | ✅ |
-| `GET` | `/api/auth/get-me` | Get currently logged in user profile | ✅ |
-
-### Resume Version Endpoints
-
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `POST` | `/api/resumes` | Upload & parse reusable resume PDF (max 5MB, ≥50 chars) | ✅ |
-| `GET` | `/api/resumes` | List all resume versions for authenticated user | ✅ |
-| `GET` | `/api/resumes/:id` | Fetch specific resume version details & text | ✅ |
-| `DELETE` | `/api/resumes/:id` | Delete a resume version (owner only) | ✅ |
-
-### Target Job Endpoints
-
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `POST` | `/api/jobs` | Submit job posting; AI extracts structured requirements | ✅ |
-| `GET` | `/api/jobs` | List all saved job postings for authenticated user | ✅ |
-| `GET` | `/api/jobs/:id` | Fetch specific job and structured requirements | ✅ |
-| `DELETE` | `/api/jobs/:id` | Delete a saved job posting (owner only) | ✅ |
-
-### Evaluation & Report Endpoints
-
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `POST` | `/api/interview/` | Generate evaluation report (reusable IDs or one-shot upload) | ✅ |
-| `GET` | `/api/interview/` | Fetch all evaluation reports for authenticated user | ✅ |
-| `GET` | `/api/interview/report/:interviewId` | Fetch report details with matches & populated entities | ✅ |
-| `POST` | `/api/interview/resume/pdf/:interviewReportId` | Generate tailored resume PDF (owner only) | ✅ |
-
-> **Note:** All protected endpoints accept authentication via HTTP-only cookie or `Authorization: Bearer <token>` header.
+### Verified Test Suite Status
+- **Backend**: **147 / 147 passed** across 15 test files (39 suites)
+- **Frontend**: **43 / 43 passed** across 4 test files (19 suites)
+- **Total**: **190 / 190 automated tests passing** (0 failures, 0 regressions)
 
 ---
 
-## 🧮 Deterministic Scoring Engine
+## Engineering Design Decisions
 
-Unlike standard generative AI wrappers where the LLM invents an arbitrary score, **Rizzume's backend owns the scoring computation completely**:
-
-1. **Requirement Weighting**:
-   - `critical`: multiplier `4.0`
-   - `high`: multiplier `3.0`
-   - `medium`: multiplier `2.0`
-   - `low`: multiplier `1.0`
-
-2. **Status Multipliers**:
-   - `matched`: `1.0`
-   - `partial`: `0.5`
-   - `missing`: `0.0`
-
-3. **Critical Skill Penalty**:
-   - For every missing critical requirement, a penalty deduction of **10 points** is subtracted from the weighted score.
-   - If **all** critical requirements are missing, the final score is strictly capped at **40/100**.
-
-4. **Zero-Hallucination Evidence Grounding**:
-   - For every `matched` or `partial` requirement, the AI pipeline must quote verbatim text from the candidate's resume (`verbatimQuote`).
-   - If no supporting quote exists in the resume, the status must strictly be `missing` or `partial` with null/empty quote.
-   - Prompts enforce boundary isolation tags (`<SYSTEM_INSTRUCTIONS>`, `<UNTRUSTED_JOB_DESCRIPTION>`, `<UNTRUSTED_RESUME>`) and outputs are strictly validated via Zod schemas.
+1. **Why Deterministic Gap Analysis Over LLM Prompting?**
+   Prompting an LLM to evaluate skill gaps across multiple job descriptions produces non-reproducible, non-explainable results that drift with temperature and prompt framing. By using an $O(S \times J)$ mathematical algorithm, Rizzume guarantees that two evaluations with identical inputs produce identical scores and priorities.
+2. **Why Snapshot Roadmaps Instead of Continuously Mutated Entities?**
+   Candidate careers evolve as jobs are added or rejected. Storing roadmaps as immutable snapshots enables point-in-time comparisons ("what skills did I need last month vs today?") while allowing candidate progress tracking on milestone items.
+3. **Why Route-Level Code Splitting?**
+   Complex workspace views (`JobTracker`, `GapAnalysis`, `LearningRoadmap`, `Interview`) contain specialized CSS and dependencies. Using `React.lazy()` reduces the initial client payload by 21.4% (JS) and 98.1% (CSS), improving initial load performance.
+4. **Why Centralized 401 Custom Events?**
+   Using a window event (`rizzume:unauthorized`) dispatched from Axios response interceptors decouples the network client from React context, avoiding circular dependencies and keeping session teardown clean.
 
 ---
 
-## 🧠 AI Analysis Pipeline
+## Limitations
 
-```
-[Target Job Description] ─────────► AI Requirement Extraction (Zod Validated)
-                                                │
-                                                ▼ Structured Requirements List
-[Resume PDF / Upload] ────────────► Evidence Analysis Pipeline
-                                    - Verbatim citation matching
-                                    - Matched / Partial / Missing status
-                                    - Prompt injection boundary isolation
-                                                │
-                                                ▼ Structured Evidence Matches
-                              Backend Deterministic Scoring Engine
-                              - Weighted importance calculation
-                              - Critical missing deductions & caps
-                                                │
-                                                ▼
-                                    Persisted Evaluation Report
-                                    - Deterministic Score & Breakdown
-                                    - Reusable Resume & Job Links
-```
+- **Gemini API Quotas**: The AI synthesis endpoints (roadmap curriculum generation, interview question extraction) require an active Google Gemini API key and are subject to Google AI Studio rate limits and model availability.
+- **Local Environment Configuration**: The platform requires a running MongoDB database and configured environment secrets to operate locally.
+- **Puppeteer Headless Requirements**: PDF resume generation runs headless Chrome via Puppeteer. In minimal Linux container environments, standard Chromium system dependencies (e.g. `libnss3`, `libatk1.0-0`) must be installed.
+- **Automated Tests vs Real-Browser Testing**: The automated test harness verifies API contracts, security boundaries, and React rendering logic, but does not substitute for cross-browser manual QA.
 
 ---
 
-## 🎨 Frontend Architecture
+## Future Scope
 
-The frontend follows a **feature-based architecture** with each feature being self-contained:
-
-```
-features/
-  auth/       → Login, Register, Protected Routes, Auth Context
-  interview/  → Home, Interview Analysis, Interview Context
-```
-
-Global state is managed via **React Context API** with custom hooks (`useAuth`, `useInterview`) providing clean abstractions over the contexts.
+- **Automated Job Board Ingestion**: Direct import of job postings via URL parsing and metadata scrapers.
+- **Webhook & Calendar Reminders**: Notification integration for upcoming interview milestones.
+- **Interactive Mock Interview Simulator**: Audio/speech-to-text integration for real-time practice sessions.
+- **Multi-Resume Variant Comparison**: Side-by-side match score comparisons across distinct versions of a candidate's resume.
 
 ---
 
-## 🔮 Future Enhancements
+## Documentation & Audit History
 
-Here's what's planned for upcoming versions of Rizzume:
-
-- 📈 **Resume Score Dashboard** — Visual scoring breakdown across categories like skills match, tone, structure, and ATS compatibility
-- 🧪 **Mock Interview Mode** — AI-generated interview questions tailored to the job description with answer evaluation
-- 📧 **Cover Letter Generator** — Auto-generate personalized cover letters from resume + JD input
-- 🔗 **LinkedIn Profile Analyzer** — Paste your LinkedIn URL and get profile optimization tips
-- 📂 **Report History & Comparison** — Compare multiple reports side-by-side to track improvement over time
-- 🎨 **Resume Templates** — Choose from multiple professional templates to export your resume as a PDF
-- 📱 **Mobile Responsive UI** — Fully optimized experience across all screen sizes and devices
-- 🔔 **Email Notifications** — Get your report delivered to your inbox after analysis
-- 🌙 **Dark Mode** — Full dark/light theme toggle across the entire application
-
-> 💡 Have an idea? Open a [GitHub Issue](https://github.com/sanskarchourasiya445/Rizzume-AiReportAndResumeGenerator/issues) or submit a feature request — contributions are always welcome!
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Here's how to get started:
-
-1. **Fork** the repository
-2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
-3. **Commit** your changes: `git commit -m 'Add some amazing feature'`
-4. **Push** to the branch: `git push origin feature/amazing-feature`
-5. **Open** a Pull Request
-
-Please make sure your code follows the existing project structure and conventions.
-
----
-
-## 👨‍💻 Author
-
-**Sanskar Chourasiya**
-
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sanskarchourasiya445)
-
----
-
-<div align="center">
-
-
-Made with ❤️ and a lot of ☕
-
-</div>
+For complete historical implementation reports, security vulnerability resolutions, and slice-by-slice verification records, see the [`docs/audit/`](docs/audit/) directory:
+- [Engineering Audit Index](docs/audit/README.md)
+- [Phase 0 — Baseline & Discovery Audit](docs/audit/phase-0-audit-report.md)
+- [Phase 1 — Foundation & Security Hardening](docs/audit/phase-1-report.md)
+- [Phase 2 — Grounded Evidence Scoring](docs/audit/phase-2-report.md)
+- [Phase 3 — Career Intelligence Platform](docs/audit/phase-3-report.md)
+- [Phase 4 — Production Hardening & Release QA](docs/audit/phase-4-report.md)

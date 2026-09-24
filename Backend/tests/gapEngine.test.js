@@ -406,4 +406,101 @@ describe("Phase 3 Slice 2 — Deterministic Gap Engine Suite", () => {
             assert.strictEqual(result.matchedSkills.length, 0);
         });
     });
+
+    describe("Phase 4 Slice 1 — Evidence Preservation & Evaluated Job Summary Contract", () => {
+        it("should expose summary.totalEvaluatedJobs and totalJobsEvaluated at root", () => {
+            const jobs = [
+                {
+                    _id: new mongoose.Types.ObjectId(),
+                    title: "Backend Engineer",
+                    structuredRequirements: [{ requirement: "Go", category: "required_skill", importance: "high", weight: 3 }]
+                },
+                {
+                    _id: new mongoose.Types.ObjectId(),
+                    title: "Cloud Architect",
+                    structuredRequirements: [{ requirement: "AWS", category: "required_skill", importance: "critical", weight: 4 }]
+                }
+            ];
+
+            const result = analyzeSkillGaps({ careerProfile: { skills: [] }, jobs });
+            assert.strictEqual(result.totalJobsEvaluated, 2);
+            assert.strictEqual(result.summary.totalJobs, 2);
+            assert.strictEqual(result.summary.totalEvaluatedJobs, 2);
+        });
+
+        it("should preserve verified candidate evidence on matched skills and filter out ungrounded items", () => {
+            const resumeId1 = new mongoose.Types.ObjectId();
+            const resumeId2 = new mongoose.Types.ObjectId();
+            const profile = {
+                skills: [
+                    {
+                        canonicalName: "Python",
+                        displayName: "Python 3",
+                        category: "programming_language",
+                        status: "demonstrated",
+                        evidence: [
+                            { verbatimQuote: "5+ years building FastAPI backends", sourceResumeVersion: resumeId1, isGrounded: true },
+                            { verbatimQuote: "Ungrounded claim", sourceResumeVersion: resumeId2, isGrounded: false }
+                        ]
+                    }
+                ]
+            };
+
+            const jobs = [
+                {
+                    _id: new mongoose.Types.ObjectId(),
+                    title: "Python Developer",
+                    structuredRequirements: [
+                        { requirement: "Python", category: "required_skill", importance: "critical", weight: 4 }
+                    ]
+                }
+            ];
+
+            const result = analyzeSkillGaps({ careerProfile: profile, jobs });
+            assert.strictEqual(result.status, "analyzed");
+            assert.strictEqual(result.matchedSkills.length, 1);
+
+            const matched = result.matchedSkills[0];
+            assert.strictEqual(matched.canonicalSkill, "Python");
+            assert.strictEqual(matched.displayName, "Python 3");
+            assert.strictEqual(matched.category, "programming_language");
+            assert.strictEqual(matched.candidateStatus, "demonstrated");
+            assert.strictEqual(matched.importanceScore, 4);
+            assert.strictEqual(matched.maxImportance, "critical");
+            assert.strictEqual(matched.jobFrequency, 1);
+
+            // Evidence must be preserved, and ungrounded items must be filtered out
+            assert.ok(Array.isArray(matched.evidence));
+            assert.strictEqual(matched.evidence.length, 1);
+            assert.strictEqual(matched.evidence[0].verbatimQuote, "5+ years building FastAPI backends");
+            assert.strictEqual(matched.evidence[0].isGrounded, true);
+        });
+
+        it("should return empty evidence array on matched skills if candidate had no evidence items", () => {
+            const profile = {
+                skills: [
+                    {
+                        canonicalName: "Git",
+                        displayName: "Git",
+                        status: "demonstrated",
+                        evidence: [] // edge case
+                    }
+                ]
+            };
+
+            const jobs = [
+                {
+                    _id: new mongoose.Types.ObjectId(),
+                    title: "Dev",
+                    structuredRequirements: [{ requirement: "Git", category: "required_skill", importance: "low", weight: 1 }]
+                }
+            ];
+
+            const result = analyzeSkillGaps({ careerProfile: profile, jobs });
+            // Candidate with no evidence cannot support demonstrated status (falls to missing, enters gaps)
+            assert.strictEqual(result.matchedSkills.length, 0);
+            assert.strictEqual(result.gaps.length, 1);
+            assert.strictEqual(result.gaps[0].canonicalSkill, "Git");
+        });
+    });
 });

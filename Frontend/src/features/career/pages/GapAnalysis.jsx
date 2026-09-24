@@ -32,6 +32,13 @@ const GapAnalysis = () => {
     const gaps = gapData?.gaps || [];
     const matchedSkills = gapData?.matchedSkills || [];
 
+    const totalJobs =
+        gapData?.summary?.totalEvaluatedJobs ??
+        gapData?.summary?.totalJobs ??
+        gapData?.totalJobsEvaluated ??
+        gapData?.totalJobs ??
+        0;
+
     const filteredGaps = gaps.filter(g => {
         if (filterPriority === "all") return true;
         return g.priority === filterPriority;
@@ -136,7 +143,7 @@ const GapAnalysis = () => {
                             </div>
                             <div className="summary-item">
                                 <span className="summary-item__label">Evaluated Jobs</span>
-                                <span className="summary-item__val">{gapData.totalJobsEvaluated || 0}</span>
+                                <span className="summary-item__val">{totalJobs}</span>
                             </div>
                         </div>
 
@@ -207,11 +214,11 @@ const GapAnalysis = () => {
                                                     <span className="badge-matched">✓ Matched</span>
                                                 </div>
                                                 <span className="matched-frequency">
-                                                    Required in {m.jobFrequency} of {gapData.totalJobsEvaluated} target jobs
+                                                    Required in {m.jobFrequency} of {totalJobs} target jobs
                                                 </span>
                                                 {m.evidence && m.evidence.length > 0 && (
                                                     <blockquote className="evidence-quote">
-                                                        "{m.evidence[0].verbatimQuote}"
+                                                        "{m.evidence[0].verbatimQuote || m.evidence[0].quote}"
                                                     </blockquote>
                                                 )}
                                             </div>

@@ -8,19 +8,50 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser())
 
-const allowedOrigins = [
+const getConfiguredOrigins = () => {
+    const raw = [];
+    if (process.env.FRONTEND_URL) {
+        raw.push(process.env.FRONTEND_URL);
+    }
+    if (process.env.ALLOWED_ORIGINS) {
+        raw.push(...process.env.ALLOWED_ORIGINS.split(","));
+    }
+    return raw.map(o => o.trim().replace(/\/+$/, "")).filter(Boolean);
+};
+
+const defaultDevOrigins = [
     "http://localhost:5173",
+    "http://127.0.0.1:5173",
     "http://localhost:3000",
-    process.env.FRONTEND_URL
-].filter(Boolean)
+    "http://127.0.0.1:3000"
+];
+
+const isAllowedDevOrigin = (origin) => {
+    const normalized = origin.replace(/\/+$/, "");
+    if (defaultDevOrigins.includes(normalized)) return true;
+    return /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(normalized);
+};
 
 app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
-        if (!origin || allowedOrigins.includes(origin)) {
-            return callback(null, true)
+        if (!origin) {
+            return callback(null, true);
         }
-        return callback(null, true) // permissive for local development
+
+        const normalizedOrigin = origin.replace(/\/+$/, "");
+        const configured = getConfiguredOrigins();
+        if (configured.includes(normalizedOrigin)) {
+            return callback(null, true);
+        }
+
+        // In development/test environments, restrict local origins to known dev ports/loopback
+        if (process.env.NODE_ENV !== "production" && isAllowedDevOrigin(normalizedOrigin)) {
+            return callback(null, true);
+        }
+
+        // Reject arbitrary origins
+        return callback(null, false);
     },
     credentials: true
 }))

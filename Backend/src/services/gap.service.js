@@ -156,12 +156,14 @@ function analyzeSkillGaps({ careerProfile, jobs, targetRole } = {}) {
             targetRole: targetRole || careerProfile?.targetRole || "Not specified",
             gaps: [],
             matchedSkills: [],
+            totalJobsEvaluated: 0,
             summary: {
                 totalRequirements: 0,
                 matchedCount: 0,
                 partialCount: 0,
                 missingCount: 0,
-                totalJobs: 0
+                totalJobs: 0,
+                totalEvaluatedJobs: 0
             }
         };
     }
@@ -281,14 +283,24 @@ function analyzeSkillGaps({ careerProfile, jobs, targetRole } = {}) {
         const priority = determinePriorityBand(gapScore, req.maxImportance, gapFactor);
 
         if (gapFactor === 0.0) {
+            const rawEvidence = Array.isArray(candidateEntry?.originalSkill?.evidence)
+                ? candidateEntry.originalSkill.evidence
+                : [];
+            // Preserve only verified grounded candidate evidence from CareerProfile
+            const verifiedEvidence = rawEvidence.filter(e => e && e.isGrounded === true);
+
             matchedSkills.push({
                 canonicalSkill: req.canonicalSkill,
                 displayName: candidateEntry?.displayName || req.displayName,
                 category: candidateEntry?.category || req.category,
+                candidateStatus: candidateEntry ? candidateEntry.effectiveStatus : "missing",
                 jobFrequency: req.frequency,
                 maxImportance: req.maxImportance,
+                maxImportanceWeight: req.maxImportanceWeight,
+                importanceScore: req.maxImportanceWeight,
                 jobIds: req.jobIds,
-                jobTitles: req.jobTitles
+                jobTitles: req.jobTitles,
+                evidence: verifiedEvidence
             });
         } else {
             if (gapStatus === "partial") {
@@ -343,12 +355,14 @@ function analyzeSkillGaps({ careerProfile, jobs, targetRole } = {}) {
         targetRole: targetRole || careerProfile?.targetRole || "Not specified",
         gaps,
         matchedSkills,
+        totalJobsEvaluated: jobList.length,
         summary: {
             totalRequirements: requirementMap.size,
             matchedCount: matchedSkills.length,
             partialCount,
             missingCount,
-            totalJobs: jobList.length
+            totalJobs: jobList.length,
+            totalEvaluatedJobs: jobList.length
         }
     };
 }

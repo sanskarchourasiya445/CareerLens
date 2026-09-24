@@ -1,13 +1,16 @@
+import React, { lazy } from "react";
 import { createBrowserRouter } from "react-router";
-import Login from "./features/auth/pages/Login";
-import Register from "./features/auth/pages/Register";
 import Protected from "./features/auth/components/Protected";
-import Dashboard from "./features/career/pages/Dashboard";
-import JobTracker from "./features/career/pages/JobTracker";
-import GapAnalysis from "./features/career/pages/GapAnalysis";
-import LearningRoadmap from "./features/career/pages/LearningRoadmap";
-import Home from "./features/interview/pages/Home";
-import Interview from "./features/interview/pages/Interview";
+
+// Lazy-loaded route components for code splitting & initial bundle optimization
+const Login = lazy(() => import("./features/auth/pages/Login"));
+const Register = lazy(() => import("./features/auth/pages/Register"));
+const Dashboard = lazy(() => import("./features/career/pages/Dashboard"));
+const JobTracker = lazy(() => import("./features/career/pages/JobTracker"));
+const GapAnalysis = lazy(() => import("./features/career/pages/GapAnalysis"));
+const LearningRoadmap = lazy(() => import("./features/career/pages/LearningRoadmap"));
+const Home = lazy(() => import("./features/interview/pages/Home"));
+const Interview = lazy(() => import("./features/interview/pages/Interview"));
 
 export const router = createBrowserRouter([
     {

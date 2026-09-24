@@ -1,12 +1,74 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { getProfile, updateProfile } from "../services/careerApi";
 import "./ProfileModal.scss";
 
 const ProfileModal = ({ onClose }) => {
+    const modalRef = useRef(null);
+    const triggerRef = useRef(null);
+
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
+
+    // Save previous active element & manage keyboard/focus trapping
+    useEffect(() => {
+        triggerRef.current = document.activeElement;
+        const prevOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+
+        const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+        const focusFirst = () => {
+            if (modalRef.current) {
+                const focusables = modalRef.current.querySelectorAll(focusableSelector);
+                if (focusables.length > 0) {
+                    focusables[0].focus();
+                }
+            }
+        };
+
+        const timer = setTimeout(focusFirst, 50);
+
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") {
+                e.stopPropagation();
+                onClose();
+                return;
+            }
+
+            if (e.key === "Tab" && modalRef.current) {
+                const focusables = Array.from(modalRef.current.querySelectorAll(focusableSelector))
+                    .filter(el => !el.disabled && el.offsetParent !== null);
+                if (focusables.length === 0) return;
+
+                const first = focusables[0];
+                const last = focusables[focusables.length - 1];
+
+                if (e.shiftKey) {
+                    if (document.activeElement === first) {
+                        e.preventDefault();
+                        last.focus();
+                    }
+                } else {
+                    if (document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                    }
+                }
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            clearTimeout(timer);
+            window.removeEventListener("keydown", handleKeyDown);
+            document.body.style.overflow = prevOverflow;
+            if (triggerRef.current && typeof triggerRef.current.focus === "function") {
+                triggerRef.current.focus();
+            }
+        };
+    }, [onClose]);
 
     // Profile fields
     const [headline, setHeadline] = useState("");
@@ -89,14 +151,22 @@ const ProfileModal = ({ onClose }) => {
 
     return (
         <div className="modal-backdrop" onClick={onClose}>
-            <div className="profile-modal" onClick={e => e.stopPropagation()}>
+            <div
+                className="profile-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="profile-modal-title"
+                aria-describedby="profile-modal-desc"
+                ref={modalRef}
+                onClick={e => e.stopPropagation()}
+            >
                 {/* Header */}
                 <div className="profile-modal__header">
                     <div className="modal-title-group">
-                        <h2>Career Profile</h2>
-                        <span className="modal-subtitle">Configure your career identity, target roles, and review verified skills.</span>
+                        <h2 id="profile-modal-title">Career Profile</h2>
+                        <span id="profile-modal-desc" className="modal-subtitle">Configure your career identity, target roles, and review verified skills.</span>
                     </div>
-                    <button type="button" className="close-btn" onClick={onClose} aria-label="Close modal">
+                    <button type="button" className="close-btn" onClick={onClose} aria-label="Close career profile modal">
                         &times;
                     </button>
                 </div>

@@ -110,6 +110,29 @@ describe("Phase 3 Slice 5 — Frontend Contracts & Logic Suite", () => {
             assert.ok(gapAnalysisContent.includes('filterPriority === "low"'));
             assert.ok(gapAnalysisContent.includes('filterPriority === "matched"'));
         });
+
+        it("should deterministically resolve totalJobs from summary.totalEvaluatedJobs with fallbacks", () => {
+            assert.ok(
+                gapAnalysisContent.includes("const totalJobs ="),
+                "GapAnalysis must define totalJobs resolution"
+            );
+            assert.ok(
+                gapAnalysisContent.includes("gapData?.summary?.totalEvaluatedJobs"),
+                "GapAnalysis must consume summary.totalEvaluatedJobs"
+            );
+            assert.ok(
+                gapAnalysisContent.includes("<span className=\"summary-item__val\">{totalJobs}</span>"),
+                "Summary bar must render evaluated job count via totalJobs"
+            );
+            assert.ok(
+                gapAnalysisContent.includes("Required in {m.jobFrequency} of {totalJobs} target jobs"),
+                "Matched skill card must format frequency denominator via totalJobs (preventing undefined)"
+            );
+            assert.ok(
+                gapAnalysisContent.includes("m.evidence[0].verbatimQuote"),
+                "Matched skill card must render grounded verbatim quote evidence"
+            );
+        });
     });
 
     describe("5. Learning Roadmap Lifecycle & Deterministic Immutability", () => {

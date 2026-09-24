@@ -52,6 +52,17 @@ const LearningRoadmap = () => {
         loadRoadmapsList();
     }, []);
 
+    useEffect(() => {
+        if (!showGenModal) return;
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape" && !generating) {
+                setShowGenModal(false);
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [showGenModal, generating]);
+
     const handleSelectRoadmap = async (roadmapId) => {
         setLoading(true);
         try {
@@ -179,13 +190,22 @@ const LearningRoadmap = () => {
                         <p>
                             Generate a customized learning plan tailored to the deterministic skill gaps across your tracked jobs.
                         </p>
-                        <button
-                            type="button"
-                            className="btn-action btn-action--primary"
-                            onClick={() => setShowGenModal(true)}
-                        >
-                            Generate First Roadmap
-                        </button>
+                        <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center", flexWrap: "wrap", marginTop: "1rem" }}>
+                            <button
+                                type="button"
+                                className="btn-action btn-action--primary"
+                                onClick={() => setShowGenModal(true)}
+                            >
+                                Generate First Roadmap
+                            </button>
+                            <button
+                                type="button"
+                                className="btn-action btn-action--secondary"
+                                onClick={() => navigate("/gaps")}
+                            >
+                                View Skill Gaps &rarr;
+                            </button>
+                        </div>
                     </div>
                 ) : (
                     <div className="roadmap-content-wrapper">
@@ -304,12 +324,19 @@ const LearningRoadmap = () => {
             {/* Generate Roadmap Modal */}
             {showGenModal && (
                 <div className="modal-backdrop" onClick={() => !generating && setShowGenModal(false)}>
-                    <div className="roadmap-modal" onClick={e => e.stopPropagation()}>
+                    <div
+                        className="roadmap-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="gen-roadmap-title"
+                        onClick={e => e.stopPropagation()}
+                    >
                         <div className="roadmap-modal__header">
-                            <h2>Generate Learning Roadmap</h2>
+                            <h2 id="gen-roadmap-title">Generate Learning Roadmap</h2>
                             <button
                                 type="button"
                                 className="close-btn"
+                                aria-label="Close generate roadmap modal"
                                 onClick={() => !generating && setShowGenModal(false)}
                                 disabled={generating}
                             >

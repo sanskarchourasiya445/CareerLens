@@ -65,8 +65,20 @@ function mockAiService() {
                 };
             }
 
-            // Check if asking for HTML resume or interview report
-            if (contents.includes("Generate resume for a candidate")) {
+            // Check if asking for HTML resume
+            if (contents.includes("Generate resume for a candidate") || contents.includes("ATS resume writer")) {
+                if (contents.includes("SIMULATE_MALFORMED_AI_RESPONSE")) {
+                    return {
+                        text: "INVALID_NON_JSON_RESPONSE_FROM_AI"
+                    };
+                }
+                if (contents.includes("SIMULATE_INVALID_SCHEMA_RESPONSE")) {
+                    return {
+                        text: JSON.stringify({
+                            invalid_key: "no html field"
+                        })
+                    };
+                }
                 return {
                     text: JSON.stringify({
                         html: "<html><body><h1>Candidate Resume</h1><p>Experience in React and Node</p></body></html>"

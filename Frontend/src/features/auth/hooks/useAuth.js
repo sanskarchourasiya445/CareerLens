@@ -1,10 +1,14 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { AuthContext } from "../auth.context";
-import { login, register, logout, getMe } from "../services/auth.api";
+import { login, register, logout } from "../services/auth.api";
 
 export const useAuth = () => {
     const context = useContext(AuthContext);
-    const { user, setUser, loading, setLoading } = context;
+    if (!context) {
+        throw new Error("useAuth must be used within an AuthProvider");
+    }
+
+    const { user, setUser, loading, setLoading, refreshUser } = context;
     const [ error, setError ] = useState(null);
 
     const handleLogin = async ({ email, password }) => {
@@ -52,32 +56,14 @@ export const useAuth = () => {
         }
     };
 
-    useEffect(() => {
-        let isMounted = true;
-
-        const getAndSetUser = async () => {
-            try {
-                const data = await getMe();
-                if (isMounted) {
-                    setUser(data.user || null);
-                }
-            } catch (err) {
-                if (isMounted) {
-                    setUser(null);
-                }
-            } finally {
-                if (isMounted) {
-                    setLoading(false);
-                }
-            }
-        };
-
-        getAndSetUser();
-
-        return () => {
-            isMounted = false;
-        };
-    }, []);
-
-    return { user, loading, error, setError, handleRegister, handleLogin, handleLogout };
+    return {
+        user,
+        loading,
+        error,
+        setError,
+        handleRegister,
+        handleLogin,
+        handleLogout,
+        refreshUser
+    };
 };

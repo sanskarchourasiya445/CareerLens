@@ -1,20 +1,24 @@
+import React, { Suspense } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { Navigate } from "react-router";
-import React from 'react'
+import RouteFallback from "../../../components/RouteFallback";
 
-const Protected = ({children}) => {
-    const { loading,user } = useAuth()
+const Protected = ({ children }) => {
+    const { loading, user } = useAuth();
 
-
-    if(loading){
-        return (<main><h1>Loading...</h1></main>)
+    if (loading) {
+        return <RouteFallback />;
     }
 
-    if(!user){
-        return <Navigate to={'/login'} />
+    if (!user) {
+        return <Navigate to="/login" />;
     }
-    
-    return children
-}
 
-export default Protected
+    return (
+        <Suspense fallback={<RouteFallback />}>
+            {children}
+        </Suspense>
+    );
+};
+
+export default Protected;

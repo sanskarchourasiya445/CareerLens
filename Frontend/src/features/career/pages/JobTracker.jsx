@@ -58,6 +58,17 @@ const JobTracker = () => {
         loadJobs();
     }, []);
 
+    useEffect(() => {
+        if (!showAddModal) return;
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") {
+                setShowAddModal(false);
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [showAddModal]);
+
     const handleStatusChange = async (jobId, newStatus) => {
         setUpdatingId(jobId);
         try {
@@ -327,6 +338,7 @@ const JobTracker = () => {
                                                 setExpandedJobId(job._id);
                                                 setEditingNotes(job.notes || "");
                                             }}
+                                            aria-label={job.notes ? `Edit notes for ${job.title}` : `Add notes for ${job.title}`}
                                         >
                                             {job.notes ? "Edit Notes" : "+ Add Notes"}
                                         </button>
@@ -335,6 +347,7 @@ const JobTracker = () => {
                                             type="button"
                                             className="link-action link-action--evaluate"
                                             onClick={() => navigate("/interview")}
+                                            aria-label={`Run resume match for ${job.title}`}
                                         >
                                             Run Resume Match &rarr;
                                         </button>
@@ -344,7 +357,8 @@ const JobTracker = () => {
                                         type="button"
                                         className="btn-delete"
                                         onClick={() => handleDelete(job._id)}
-                                        title="Delete Job"
+                                        title={`Delete job: ${job.title}`}
+                                        aria-label={`Delete job: ${job.title}`}
                                     >
                                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                                     </button>
@@ -358,10 +372,23 @@ const JobTracker = () => {
             {/* Track New Job Modal */}
             {showAddModal && (
                 <div className="modal-backdrop" onClick={() => setShowAddModal(false)}>
-                    <div className="job-modal" onClick={e => e.stopPropagation()}>
+                    <div
+                        className="job-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="track-job-title"
+                        onClick={e => e.stopPropagation()}
+                    >
                         <div className="job-modal__header">
-                            <h2>Track New Job</h2>
-                            <button type="button" className="close-btn" onClick={() => setShowAddModal(false)}>&times;</button>
+                            <h2 id="track-job-title">Track New Job</h2>
+                            <button
+                                type="button"
+                                className="close-btn"
+                                onClick={() => setShowAddModal(false)}
+                                aria-label="Close track job modal"
+                            >
+                                &times;
+                            </button>
                         </div>
 
                         <form onSubmit={handleCreateJob} className="job-modal__form">

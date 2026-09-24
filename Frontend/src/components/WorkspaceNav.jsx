@@ -25,7 +25,7 @@ const WorkspaceNav = () => {
                     </div>
 
                     {/* Navigation Links */}
-                    <nav className={`workspace-header__nav ${mobileMenuOpen ? "workspace-header__nav--open" : ""}`}>
+                    <nav id="workspace-nav-links" aria-label="Workspace navigation" className={`workspace-header__nav ${mobileMenuOpen ? "workspace-header__nav--open" : ""}`}>
                         <NavLink
                             to="/"
                             end
@@ -76,6 +76,7 @@ const WorkspaceNav = () => {
                             className="profile-btn"
                             onClick={() => setIsProfileOpen(true)}
                             title="View / Edit Career Profile"
+                            aria-label="View or edit career profile"
                         >
                             <span className="profile-btn__avatar">
                                 {user?.username ? user.username.charAt(0).toUpperCase() : "U"}
@@ -88,6 +89,7 @@ const WorkspaceNav = () => {
                             className="logout-btn"
                             onClick={handleLogout}
                             title="Log Out"
+                            aria-label="Log out of application"
                         >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                             <span className="logout-text">Logout</span>
@@ -98,7 +100,9 @@ const WorkspaceNav = () => {
                             type="button"
                             className="mobile-toggle"
                             onClick={() => setMobileMenuOpen(prev => !prev)}
-                            aria-label="Toggle Navigation Menu"
+                            aria-label="Toggle navigation menu"
+                            aria-expanded={mobileMenuOpen}
+                            aria-controls="workspace-nav-links"
                         >
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 {mobileMenuOpen ? (
